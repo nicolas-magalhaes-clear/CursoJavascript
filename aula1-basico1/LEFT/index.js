@@ -1,4 +1,4 @@
-let cor  = 'vermelho'
+let cor  = 'verde'
 
 if(cor === 'amarelo'){
     console.log('Atenção!')
