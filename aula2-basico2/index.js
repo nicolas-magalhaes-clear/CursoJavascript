@@ -37,3 +37,20 @@ window.addEventListener('focus', event => {
 let agora = new Date()
 console.log(agora)
 
+//Arrays
+let carro = 'Palio';
+
+
+//Arrays armazenam multiplos valores de diversos tipos
+let carros = ['Palio', 'Uno', 'Fiat', 'Saveiro', true, new Date(), function(){}]
+
+//Posicao do terceiro elemento do array
+console.log(carros[4]);
+
+//Percorrendo um array
+carros.forEach(function(value, index){
+    //value é o elemento atual do array
+    //index é o elemento numeral que representa a posicao do elemento
+})
+
+
