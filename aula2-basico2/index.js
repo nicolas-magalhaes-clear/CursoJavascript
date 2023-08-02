@@ -18,3 +18,10 @@ let resultado = somar(numero1, numero2);
 
 console.log(resultado);
 
+//Funcao elaborada
+function calc(x1, x2 , operador){
+    return `${x1} ${operador} ${x2}`
+}
+
+
+
