@@ -27,3 +27,13 @@ function calc(x1, x2 , operador){
     return eval(`${x1} ${operador} ${x2}`)
 })
 
+//Adicionando eventos
+window.addEventListener('focus', event => {
+    console.log('Focado no documento');
+})
+
+
+//Datas
+let agora = new Date()
+console.log(agora)
+
