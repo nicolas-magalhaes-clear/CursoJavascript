@@ -23,5 +23,7 @@ function calc(x1, x2 , operador){
     return `${x1} ${operador} ${x2}`
 }
 
-
+(function(x1, x2, operador){
+    return eval(`${x1} ${operador} ${x2}`)
+})
 
