@@ -1,0 +1,14 @@
+é possivel utilizar multiplos eventos no mesmo elemento
+podemos copiar o addEventListener e colar com eventos diferentes
+
+
+podemos usar o split() para quebrar strings e transforma-las em
+um array exemplo
+let string = "click drag"
+let arrayEvents = string.split(' ');
+
+arrayEvents vai ficar = ['click', 'drag']
+
+depois disso podemos criar uma funcao chamada addEventListenerAll
+E adicionar string como um parametro de eventos, quebra-lo em e um array e aplicar eventos
+a cada elemento (Ver Projetos - Calculadora - addEventListenerAll)
