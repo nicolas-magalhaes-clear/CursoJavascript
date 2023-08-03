@@ -1,0 +1,8 @@
+O método eval é utilizado para receber strings
+e transforma-la em matematica
+
+exemplo 
+
+eval('5*2')
+
+sai = 10
