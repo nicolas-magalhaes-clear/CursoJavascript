@@ -1,6 +1,7 @@
 class CalcController{
     
     constructor(){
+        this._operation = []
         this._locale = 'pt-br';
         this._displayCalcEl = document.querySelector('#display');
         this._dateEl = document.querySelector('#data');
@@ -18,11 +19,14 @@ class CalcController{
         }, 1000);
     }
 
+    //Adicionar multiplos eventos a um elemento
     addEventListenerAll(element, events, fn){
         events.split(' ').forEach(event => {
             element.addEventListener(event,fn, false);
         })
     }
+
+    //Aplicar eventos aos botoes
     initButtonsEvents(){
         let buttons = document.querySelectorAll("#buttons > g, #parts > g");
         
@@ -47,6 +51,50 @@ class CalcController{
         });
         this.displayTime = this.currentDate.toLocaleTimeString(this._locale);
     }
+
+    setError(){
+        this.displayCalc = 'Error';
+    }
+    clearAll(){
+        this._operation = []
+    }
+    clearEntry(){
+        this._operation.pop();
+    }
+    addOperation(value){
+        this._operation.push(value)
+    }
+    execBtn(value){
+        switch(value){
+
+            case 'ac':
+                this.clearAll();
+                break;
+            case 'ce':
+                this.clearEntry();
+                break;
+            case 'soma':
+                
+                break;
+            case 'subtracao':
+     
+                break;
+            case 'divisao':
+     
+                break;
+            case 'multiplicacao':
+     
+                break;
+            case 'porcento':
+     
+                break;
+            case 'igual':
+     
+                break;
+            default:
+                this.setError();
+            }
+        }
 
     //Getter e setter displayTime
     get displayTime(){
