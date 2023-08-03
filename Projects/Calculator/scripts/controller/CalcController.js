@@ -59,6 +59,29 @@ class CalcController {
 
     }
 
+    calc(){
+        let last = this._operation.pop();
+
+        let result = eval(this._operation.join(""));
+        this._operation = [result, last];
+
+    }
+    pushOperation(value){
+        
+        this._operation.push(value);
+
+        if(this._operation.length >3){
+
+            
+
+            this.calc();
+            console.log(this._operation)
+        };
+    }
+    setLastNumberToDisplay(){
+        
+    }
+
     isOperator(value){
 
         return (['+', '-', '*', '%', '/'].indexOf(value) > -1);
@@ -91,6 +114,9 @@ class CalcController {
             let newValue = this.getLastOperation().toString() + value.toString();
 
             this.setLastOperation(parseInt(newValue));
+
+            //Update display
+            this.setLastNumberToDisplay();
 
         }
 
