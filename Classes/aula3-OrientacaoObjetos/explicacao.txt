@@ -20,3 +20,8 @@ const objeto = new Carro();
 
 //aplicando um método da classe no objeto
 objeto.ligar();
+
+
+
+Dentro de uma classe uma variavel se chamada atributos
+e funções se chamam de metodos
