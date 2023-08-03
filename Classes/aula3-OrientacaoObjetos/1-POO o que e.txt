@@ -5,6 +5,9 @@ O que é orientação a objetos
 para a classe, que executam diversas ações
 A classe dá vida a uma instancia, que quando a utilizamos é chamada de objetos
 
+O método construtor é quem define como essa classe será chamada
+Quais atributos são levados em conta na hora de definirmos
+
 exemplo:
 class Carro{
 
