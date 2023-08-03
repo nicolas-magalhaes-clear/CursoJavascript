@@ -1,0 +1,27 @@
+O que é orientação a objetos
+
+
+É uma forma de organizar o código em classes, aonde definimos métodos (funções) 
+para a classe, que executam diversas ações
+A classe dá vida a uma instancia, que quando a utilizamos é chamada de objetos
+
+exemplo:
+class Carro{
+
+    private motor;
+    //Definimos o motor como ligado atraves de um método da classe/
+    ligar(){
+        this.motor = "ligado"
+    }
+}
+
+//Usando o objeto que instancia a classe
+const objeto = new Carro();
+
+//aplicando um método da classe no objeto
+objeto.ligar();
+
+
+
+Dentro de uma classe uma variavel se chamada atributos
+e funções se chamam de metodos
