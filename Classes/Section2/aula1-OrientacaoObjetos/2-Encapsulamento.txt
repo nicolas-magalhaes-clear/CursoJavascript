@@ -1,0 +1,24 @@
+Encapsulamento é a definição de níveis de acesso para o código
+
+
+
+public - todos tem acesso
+protected - apenas os pares dele tem acesso
+private - apenas ele tem acesso
+
+
+Atualmente nao existe um private em javascript
+Entao utiliza-se o "_" na frente da variavel para
+sabermos que ela é private
+
+
+Toda vez que queremos editar/acessar o valor de uma propriedade
+private precisamos de um getter e um setter para obtermos acesso a ela
+Para definir um get em JS:
+get NOME_ATRIBUTO(){
+    return this.NOME_ATRIBUTO;
+}
+Para definir um set em JS:
+set NOME_ATRIBUTO(){
+    return this.NOME_ATRIBUTO;
+}

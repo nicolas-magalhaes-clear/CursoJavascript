@@ -1,0 +1,20 @@
+DOM - DOCUMENT OBJECT MODEL
+
+É aonde o javascript no navegador é executado
+Por ele podemos verificar o javascript da página e detectar como
+cada elemento se comporta
+
+Podemos visualizar quais elementos tem atributos, métodos e valores
+
+Através do querySelector() podemos selecionar elementos do DOM para interagir com o 
+HTML da página
+
+Usamos a notação '.' para selecionar classes do html
+let elemento1 = document.querySelector('.elemento');
+<div class ='elemento'></ðiv>
+
+Usamos a notacao '#' para selecionarmos IDs
+let elemento2 = document.querySelector('#elementoID');
+<div id='elementoID'></div>
+
+Podemos manipular esses elementos e interargir completamente com eles usando javascript

@@ -1,0 +1,13 @@
+Eventos sao atribuições que damos ao elementos para que estes 
+possam agir conforme uma interação do usuário
+
+Por exemplo, como clicar num determinado elementos
+Ao digitar na pagina, ao arrastar um elemento
+
+Para aplicar um evento selecionamos o elemento e logo em seguida aplicamos
+const elemento = document.querySelector('#elemento');
+elemento.addEventListener('click', (e) =>{
+
+})
+
+o (e) é literalmente o parametro event,é a interacao
