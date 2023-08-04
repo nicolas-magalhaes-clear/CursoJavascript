@@ -1,4 +1,4 @@
-You can access and interact with html using Javascript
+/*You can access and interact with html using Javascript
 
 We already know that using querySelector method you can select an element
 we also can interact with him, define it's html content, his value, or event the classes that he Contains
@@ -6,14 +6,9 @@ we also can interact with him, define it's html content, his value, or event the
 
 example:
 //Interacting with a input value
-
-<input type="text">
-
-<script>
+*/
 let inputElement = document.querySelector('input');
 inputElement.value = "10";
 
 //if we want to see the changed value
 console.log(inputElement.value)
-
-</script>
