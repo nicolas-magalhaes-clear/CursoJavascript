@@ -13,6 +13,7 @@ class CalcController {
         this._currentDate;
         this.initialize();
         this.initButtonsEvents();
+        this.initKeyboard();
 
     }
 
@@ -301,7 +302,46 @@ class CalcController {
         }
 
     }
-
+    initKeyboard(){
+        document.addEventListener('keyup', e=>{
+            switch(e.key){
+                case 'Escape':
+                    this.clearAll();
+                    break;
+                case 'Backspace':
+                    this.clearEntry();
+                    break;
+                case "+":
+                case '-':
+                case '*':
+                case '/':
+                case '%':
+                    this.addOperation(e.key);
+                    break;
+                case '.':
+                case ',':
+                    this.addDot();
+                    break;
+                case 'Enter':
+                case '=':
+                    this.calc();
+                    break;
+                case '0':
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                case '5':
+                case '6':
+                case '7':
+                case '8':
+                case '9':
+                    this.addOperation(e.key);
+                    break;
+            }
+        })
+        
+    }
     initButtonsEvents(){
 
         let buttons = document.querySelectorAll("#buttons > g, #parts > g");
