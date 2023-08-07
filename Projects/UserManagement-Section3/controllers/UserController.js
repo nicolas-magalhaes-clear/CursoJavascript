@@ -9,6 +9,11 @@ class UserController {
 
     }
 
+    onEditCancel(){
+        document.querySelector('#box-user-update .btn-cancel').addEventListener('click', (e)=>{
+
+        })
+    }
     onSubmit(){
 
         this.formEl.addEventListener("submit", event => {
@@ -20,6 +25,8 @@ class UserController {
             btn.disabled = true;
 
             let values = this.getValues();
+
+            if (!values) return false;
 
             this.getPhoto().then(
                 (content) => {
@@ -84,11 +91,14 @@ class UserController {
 
         let user = {};
         let isValid = true;
+
         [...this.formEl.elements].forEach(function(field, index){
 
-            if(['name', 'email','password'].indexOf(field.name) > -1 && !field.value){
-                field.parentElement.classList.add('has-error')
-                isValid = false;
+            if (['name', 'email', 'password'].indexOf(field.name) > -1 && !field.value) {
+
+                field.parentElement.classList.add("has-error");
+                isValid = false
+
             }
 
             if (field.name === "gender") {
@@ -108,10 +118,11 @@ class UserController {
             }
     
         });
-    
-        if(!isValid){
+
+        if (!isValid) {
             return false;
         }
+    
         return new User(
             user.name, 
             user.gender, 
@@ -124,11 +135,12 @@ class UserController {
         );
 
     }
-
     
     addLine(dataUser) {
 
         let tr = document.createElement('tr');
+
+        tr.dataset.user = JSON.stringify(dataUser);
 
         tr.innerHTML = `
             <tr>
@@ -136,15 +148,45 @@ class UserController {
                 <td>${dataUser.name}</td>
                 <td>${dataUser.email}</td>
                 <td>${(dataUser.admin) ? 'Sim' : 'Não'}</td>
-                <td>${Utils.dateFormat(dateUser.register)}</td>
+                <td>${Utils.dateFormat(dataUser.register)}</td>
                 <td>
-                    <button type="button" class="btn btn-primary btn-xs btn-flat">Editar</button>
+                    <button type="button" class="btn btn-edit btn-primary btn-xs btn-flat">Editar</button>
                     <button type="button" class="btn btn-danger btn-xs btn-flat">Excluir</button>
                 </td>
             </tr>
         `;
 
+        tr.querySelector('.btn-edit').addEventListener('click', e=>{
+            JSON.parse(tr.dataset.user);
+            document.querySelector('#box-user-create').style.display = 'none';
+            document.querySelector('#box-user-update').style.display = 'block';
+        })
         this.tableEl.appendChild(tr);
 
+        this.updateCount()
+
     }
-}   
+
+    updateCount() {
+
+        let numberUsers = 0;
+        let numberAdmin = 0;
+
+        [...this.tableEl.children].forEach(tr => {
+
+            numberUsers++;
+
+            let user = JSON.parse(tr.dataset.user);
+
+            if (user._admin) numberAdmin++;
+        })
+
+        document.querySelector("#numberUsers").innerHTML = numberUsers;
+        document.querySelector("#numberUsers-Admin").innerHTML = numberAdmin;
+
+    }
+
+    showPanelCreate(){
+        
+    }
+}
