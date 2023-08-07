@@ -6,12 +6,13 @@ class UserController {
         this.tableEl = document.getElementById(tableId);
 
         this.onSubmit()
+        this.onEdit();
 
     }
 
-    onEditCancel(){
+    onEdit(){
         document.querySelector('#box-user-update .btn-cancel').addEventListener('click', (e)=>{
-
+            this.showPanelCreate();
         })
     }
     onSubmit(){
@@ -158,8 +159,7 @@ class UserController {
 
         tr.querySelector('.btn-edit').addEventListener('click', e=>{
             JSON.parse(tr.dataset.user);
-            document.querySelector('#box-user-create').style.display = 'none';
-            document.querySelector('#box-user-update').style.display = 'block';
+            this.showPanelUpdate();
         })
         this.tableEl.appendChild(tr);
 
@@ -187,6 +187,11 @@ class UserController {
     }
 
     showPanelCreate(){
-        
+        document.querySelector('#box-user-create').style.display = 'block';
+        document.querySelector('#box-user-update').style.display = 'none';
+    }
+    showPanelUpdate(){
+        document.querySelector('#box-user-create').style.display = 'none';
+        document.querySelector('#box-user-update').style.display = 'block';
     }
 }
