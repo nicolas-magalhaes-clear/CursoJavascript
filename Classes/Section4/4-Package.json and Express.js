@@ -22,5 +22,7 @@ Allow us to create routes define which one of those do something and interact wi
 
 To install express we use in the command line: "npm install express"
 
+if we use the parameter --save when installing an package/dependency, we also say 
+to node that is a dependency of our code the package and it will include in our package.json file
 
 */
