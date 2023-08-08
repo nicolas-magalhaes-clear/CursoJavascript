@@ -15,6 +15,7 @@ class User {
 
     }
 
+    //Defining getters and setters
     get id(){
         return this._id;
     }
@@ -54,6 +55,7 @@ class User {
         this._photo = value;
     }
 
+    //End getters and setters
     loadFromJSON(json) {
 
         for (let name in json) {
@@ -70,7 +72,7 @@ class User {
 
         }
 
-    }
+    }//end method loadFromJson
 
     static getusersStorage () {
 
@@ -126,7 +128,7 @@ class User {
         
 
         
-    }
+    }//enc method save()
     remove(){
         let users = User.getusersStorage();
 
@@ -140,6 +142,6 @@ class User {
         });
 
         localStorage.setItem("users", JSON.stringify(users));
-    }
+    }//end method remove()
 
 }
