@@ -9,7 +9,7 @@ const bodyParser = require('body-parser');
 let app = express();
 app.use(bodyParser.urlencoded({urlencoded: false}));
 
-consign().include('Routes').into(app);
+consign().include('Routes').include('utils').into(app);
 
 
 
