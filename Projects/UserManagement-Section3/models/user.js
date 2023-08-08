@@ -2,6 +2,7 @@ class User {
 
     constructor (name, gender, birth, country, email, password, photo, admin){
 
+        this._id;
         this._name = name;
         this._gender = gender;
         this._birth = birth;
@@ -14,6 +15,9 @@ class User {
 
     }
 
+    get id(){
+        return this._id;
+    }
     get register() {
         return this._register;
     }
@@ -66,6 +70,56 @@ class User {
 
         }
 
+    }
+
+    static getusersStorage () {
+
+        let users = [];
+
+        if (localStorage.getItem("users")) {
+
+            users = JSON.parse(localStorage.getItem("users"));
+
+        }
+
+        return users
+
+    }//end method getUsersStorage()
+
+
+    getNewId(){
+
+        if(!window.id) window.id = 0;
+        id++;
+        return id;
+
+    }//end method getNewId()
+    save(){
+        let users = User.getusersStorage();
+
+        if(this.id > 0){
+
+            users.map(u=>{
+                
+                if(u._id === this.id){
+                    u = this;
+                }
+                return u;
+            })
+            
+        }
+        else{
+            
+            this._id = this.getNewId();
+            
+            users.push(this)
+            
+        }
+        
+        localStorage.setItem("users", JSON.stringify(users));
+        
+
+        
     }
 
 }
