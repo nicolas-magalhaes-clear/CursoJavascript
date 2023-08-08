@@ -17,4 +17,10 @@ entry point  (what archive will start the project)
 -gitrepository (auto configure git)
 
 
+Express is a framework to route server in javascript throught nodeJS
+Allow us to create routes define which one of those do something and interact with requests
+
+To install express we use in the command line: "npm install express"
+
+
 */
