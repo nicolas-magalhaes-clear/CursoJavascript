@@ -49,24 +49,11 @@ class UserController {
                     } else {
                         result._photo = content;
                     }
+                    let user = new User();
 
-                    tr.dataset.user = JSON.stringify(result);
-                    console.log('tr value in onEdit',tr);
-                    console.log('TR.DATASET.USER:', tr.dataset.user);
+                    user.loadFromJSON(result);
 
-                    tr.innerHTML = `
-                        <td><img src="${result._photo}" class="img-circle img-sm"></td>
-                        <td>${result._name}</td>
-                        <td>${result._email}</td>
-                        <td>${(result._admin) ? 'Sim' : 'Não'}</td>
-                        <td>${Utils.dateFormat(result._register)}</td>
-                        <td>
-                            <button type="button" class="btn btn-primary btn-edit btn-xs btn-flat">Editar</button>
-                            <button type="button" class="btn btn-danger btn-delete btn-xs btn-flat">Excluir</button>
-                        </td>
-                    `;
-
-                    this.addEventsTr(tr);
+                    tr = this.getTr(user, tr)
 
                     this.updateCount();
 
@@ -84,7 +71,7 @@ class UserController {
 
         });
 
-    }
+    }//end method onEdit()
 
     onSubmit(){
 
@@ -121,7 +108,7 @@ class UserController {
         
         });
 
-    }
+    }//end method onSubmit()
 
     getPhoto(formEl){
 
@@ -159,7 +146,7 @@ class UserController {
 
         });
 
-    }
+    }//end method getPhoto()
 
     getValues(formEl){
 
@@ -221,7 +208,7 @@ class UserController {
             user.admin
         );
 
-    }
+    }//end method getValues()
 
     getusersStorage () {
 
@@ -235,7 +222,7 @@ class UserController {
 
         return users
 
-    }
+    }//end method getUsersStorage()
 
     selectAll() {
        
@@ -251,7 +238,7 @@ class UserController {
 
         })
 
-    }
+    }//end method selectAll()
 
     insert(data) {
 
@@ -261,17 +248,14 @@ class UserController {
 
         sessionStorage.setItem("users", JSON.stringify(users));
 
-    }
+    }//end method insert()
     
-    addLine(dataUser) {
+    getTr(dataUser, tr = null){
 
-        let tr = document.createElement('tr');
-        console.log('Values in addLine:', dataUser);
-        tr.dataset.user = JSON.stringify(dataUser);
-        console.log('tr value now:', tr);
-        console.log('Values in tr.dataset.user:', tr.dataset.user);
+        if(tr === null)tr = document.createElement('tr')
+    tr.dataset.user = JSON.stringify(dataUser);        
         tr.innerHTML = `
-            <tr>
+            
                 <td><img src=${dataUser.photo} class="img-circle img-sm"></td>
                 <td>${dataUser.name}</td>
                 <td>${dataUser.email}</td>
@@ -281,16 +265,21 @@ class UserController {
                     <button type="button" class="btn btn-primary btn-edit btn-xs btn-flat">Editar</button>
                     <button type="button" class="btn btn-danger btn-delete btn-xs btn-flat">Excluir</button>
                 </td>
-            </tr>
+            
         `;
-
         this.addEventsTr(tr);
+
+    }//end method getTr()
+
+    addLine(dataUser) {
+
+        let tr = this.getTr(dataUser)
 
         this.tableEl.appendChild(tr);
 
         this.updateCount();
 
-    }
+    }//end method addLine()
 
     addEventsTr(tr) {
 
@@ -348,21 +337,21 @@ class UserController {
 
         });
 
-    }
+    }//end method addEventsTr()
 
     showPanelCreate(){
 
         document.querySelector("#box-user-create").style.display = "block";
         document.querySelector("#box-user-update").style.display = "none";
 
-    }
+    }//end method showPanelCreate()
 
     showPanelUpdate(){
 
         document.querySelector("#box-user-create").style.display = "none";
         document.querySelector("#box-user-update").style.display = "block";
 
-    }
+    }//end method showPanelUpdate()
 
     updateCount(){
 
@@ -381,5 +370,5 @@ class UserController {
         document.querySelector("#number-users").innerHTML = numberUsers;
         document.querySelector("#number-users-admin").innerHTML = numberAdmin;
 
-    }
+    }//end method updateCount()
 }
