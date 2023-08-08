@@ -10,11 +10,7 @@ module.exports = (app)=>{
                     }]
                 }));
     });
-    app.get('/users/admin', (req, res) =>{
-        res.statusCode = 200;
-                res.setHeader('Content-type', 'application/json');
-                res.end(JSON.stringify({
-                    users: []
-                }));
+    app.post('/users', (req, res) =>{
+        res.json(req.body);
     });
 };
