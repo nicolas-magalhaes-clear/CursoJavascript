@@ -1,15 +1,15 @@
 
 
 const express = require('express');
-let routesIndex = require('./Routes/index')
-let routesUsers = require('./Routes/users');
+const consign = require('consign');
 
 
 //Creating express server
 let app = express();
 
-app.use(routesIndex);
-app.use('/users',routesUsers);
+consign().include('Routes').into(app);
+
+
 
  
 
