@@ -31,8 +31,8 @@ module.exports = (app)=>{
     //alteração na syntax atualização do express-validator
     route.post(
         [
-          check("name", "O nome é obrigatório.").notEmpty(),
-          check("email", "Email inválido.").notEmpty().isEmail(),
+          check("_name", "O nome é obrigatório.").notEmpty(),
+          check("_ email", "Email inválido.").notEmpty().isEmail(),
         ],
         (req, res) => {
           let errors = validationResult(req);
