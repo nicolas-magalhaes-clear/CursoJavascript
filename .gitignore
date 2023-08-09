@@ -1,2 +1,4 @@
 Projects/UserManagement-Section3/controllers/testUserController.js
 node_modules
+bower_components/*
+dist
