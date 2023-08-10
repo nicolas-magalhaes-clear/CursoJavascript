@@ -8,8 +8,8 @@ const bodyParser = require('body-parser');
 
 //Creating express server
 let app = express();
-app.use(bodyParser.urlencoded({urlencoded: false}));
-app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({urlencoded: false, limit: '50mb'}));
+app.use(bodyParser.json({limit: '50mb'}));
 //app.use(expressValidator());
 
 consign().include('Routes').include('utils').into(app);

@@ -32,11 +32,11 @@ module.exports = (app)=>{
     route.post(
         [
           check("_name", "O nome é obrigatório.").notEmpty(),
-          check("_ email", "Email inválido.").notEmpty().isEmail(),
+          check("_email", "Email inválido.").notEmpty().isEmail(),
         ],
         (req, res) => {
           let errors = validationResult(req);
-     
+            
           if (!errors.isEmpty()) {
             app.utils.error.send(errors, req, res);
             return false;

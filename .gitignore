@@ -2,3 +2,8 @@ Projects/UserManagement-Section3/controllers/testUserController.js
 node_modules
 bower_components/*
 dist
+Crashpad
+Code Cache
+CachedData
+blob_storage
+bower_components
