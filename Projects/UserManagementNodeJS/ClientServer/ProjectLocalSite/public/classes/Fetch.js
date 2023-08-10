@@ -16,8 +16,26 @@ class Fetch{
     static request(method, url, params = {}) {
 
         return new Promise((resolve, reject) => {
+    
+            let request;
+            switch(method.toLowerCase()){
+                case 'get':
+                    request = url
+                    break;
 
-            fetch(url).then(response => {
+                default:
+                    request = new Request(url, {
+                        method,
+                        body: JSON.stringify(params),
+                        headers: new Headers({
+                            'Content-Type': ''
+                        })
+                        
+                    });
+            }
+            
+
+            fetch(request).then(response => {
                 response.json().then(json => {
 
                     resolve(json)
@@ -27,6 +45,8 @@ class Fetch{
                     reject(e);
                     
                 })
+            }).catch(e => {
+                reject(e);
             })
 
         });
