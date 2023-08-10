@@ -1,5 +1,6 @@
 
 
+const { initializeApp } = require('https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js')
 class DropBoxController{
 
 
@@ -13,9 +14,28 @@ class DropBoxController{
         this.progressBarEl = this.snackModalEl.querySelector('.mc-progress-bar-fg');
         this.nameFileEl = this.snackModalEl.querySelector('.filename');
         this.timeLeftEl = this.snackModalEl.querySelector('.timeleft');
+        this.connectFirebase();
         this.initEvents();
     }
 
+    connectFirebase(){
+        //import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
+        //import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-analytics.js";
+        const firebaseConfig = {
+            apiKey: "AIzaSyALbVGgZU76nRt2dybOh_LdXZJ07rKHB0Q",
+            authDomain: "dropbox-clone-d8a49.firebaseapp.com",
+            databaseURL: "https://dropbox-clone-d8a49-default-rtdb.firebaseio.com",
+            projectId: "dropbox-clone-d8a49",
+            storageBucket: "dropbox-clone-d8a49.appspot.com",
+            messagingSenderId: "977962519235",
+            appId: "1:977962519235:web:ea8840c235597025eaf076",
+            measurementId: "G-56GMLTG6BM"
+          };
+        
+          // Initialize Firebase
+          const app = initializeApp(firebaseConfig);
+          const analytics = getAnalytics(app);
+    }
 
     initEvents(){
 
@@ -82,6 +102,8 @@ class DropBoxController{
         return Promise.all(promises);
 
     }
+
+    
 
     uploadProgress(event, file){
 
