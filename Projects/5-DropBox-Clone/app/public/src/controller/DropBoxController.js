@@ -1,6 +1,3 @@
-
-
-const { initializeApp } = require('https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js')
 class DropBoxController{
 
 
@@ -14,14 +11,14 @@ class DropBoxController{
         this.progressBarEl = this.snackModalEl.querySelector('.mc-progress-bar-fg');
         this.nameFileEl = this.snackModalEl.querySelector('.filename');
         this.timeLeftEl = this.snackModalEl.querySelector('.timeleft');
+        this.listFilesEl = document.querySelector('#list-of-files-and-directories')
         this.connectFirebase();
         this.initEvents();
+        this.readFiles();
     }
 
     connectFirebase(){
-        //import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
-        //import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-analytics.js";
-        const firebaseConfig = {
+        var config = {
             apiKey: "AIzaSyALbVGgZU76nRt2dybOh_LdXZJ07rKHB0Q",
             authDomain: "dropbox-clone-d8a49.firebaseapp.com",
             databaseURL: "https://dropbox-clone-d8a49-default-rtdb.firebaseio.com",
@@ -31,10 +28,7 @@ class DropBoxController{
             appId: "1:977962519235:web:ea8840c235597025eaf076",
             measurementId: "G-56GMLTG6BM"
           };
-        
-          // Initialize Firebase
-          const app = initializeApp(firebaseConfig);
-          const analytics = getAnalytics(app);
+          firebase.initializeApp(config);
     }
 
     initEvents(){
@@ -47,14 +41,43 @@ class DropBoxController{
 
         this.inputFilesEl.addEventListener('change', event => {
             
-            console.log(event.target.file);
-            this.uploadTask(event.target.files);
+            this.btnSendFileEl.disabled = true;
+            this.uploadTask(event.target.files).then(responses => {
+                responses.forEach((response) => {
+
+                    
+                    this.getFireBaseRef().push().set(response.files['input-file']);
+
+                });
+
+                this.uploadComplete();
+                
+            }).catch(err => {
+                uploadComplete();
+                console.error(err);
+            });
             this.modalShow();
 
-            this.inputFilesEl.value = '';
+            
         })
     }//end method initEvents
 
+
+    getFileView(){
+
+    }
+
+    uploadComplete(){
+
+        this.modalShow(false);
+        this.inputFilesEl.value = '';
+        this.btnSendFileEl.disabled = false;
+
+    }
+
+    getFireBaseRef(){
+        return firebase.database().ref('files');
+    }
 
     uploadTask(files){
         let promises = [];
@@ -68,7 +91,7 @@ class DropBoxController{
                 ajax.open('POST', '/upload');
 
                 ajax.onload = event => {
-                    this.modalShow(false);
+                    
                     try{
                         resolve(JSON.parse(ajax.responseText));
                     }
@@ -78,7 +101,9 @@ class DropBoxController{
                 };
 
                 ajax.onerror = event => {
-                    this.modalShow(false);
+                    
+                    
+                    
                     reject(event);
                 }
 
@@ -86,7 +111,7 @@ class DropBoxController{
                     
 
                     this.uploadProgress(event, file);
-                    console.log(event);
+                    
 
                 }
 
@@ -305,13 +330,36 @@ class DropBoxController{
             }
     }
 
-    getFileView(){
+    getFileView(file, key){
 
-        return `
+        let li = document.createElement('li');
+        
+        li.dataset.key = key
+        
+        li.innerHTML = `
         <li>
             ${this.getfileIconView(file)}
         <div class="name text-center">${file.name}</div>
     </li>
         `
+        
+        return li;
+    }
+
+    readFiles(){
+
+        this.listFilesEl.innerHTML = '';
+        
+        this.getFireBaseRef().on('value', snapshot => {
+            
+            snapshot.forEach((snapshotItem) => {
+                
+                let key = snapshotItem.key;
+                
+                let data = snapshotItem.val();
+
+                this.listFilesEl.appendChild(this.getFileView(data, key))
+            })
+        })
     }
 }
