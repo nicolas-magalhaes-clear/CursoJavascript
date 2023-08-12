@@ -46,13 +46,16 @@ removeTasks(){
     this.getSelection().forEach(li => {
         
         let file = JSON.parse(li.dataset.file)
+        let key = li.dataset.key;
+
+        
 
         let formData = new FormData();  
         console.log(file)
 
         
         formData.append('path', file['0'].filepath);
-        formData.append('key', file.key);
+        formData.append('key', key);
 
         promises.push(this.ajax('/file', 'DELETE', formData, onprogress = function(){}, onloadstart = function(){}))
 
@@ -99,8 +102,11 @@ initEvents() {
       this.removeTasks().then(responses => {
         responses.forEach(response => {
             console.log('response:', response)
-            if(response.files){
-                console.log('response path', response.files)
+            if(response.filePath){
+                console.log('response path:', response.filePath)
+                console.log('response key:', response.key)
+
+                this.getFirebaseRef().child(response.key).remove();
             }
         })
 
@@ -191,7 +197,7 @@ uploadTask(files) {
 
     let promise = this.ajax('/upload', 'POST', formData,
     //upload function
-    ()=> {
+    (event)=> {
 
         this.uploadProgress(event, file)
 
@@ -434,6 +440,7 @@ readFiles() {
     snapshot.forEach(snapshotItem => {
         let key = snapshotItem.key;
         let data = snapshotItem.val()
+        console.log('key:::', key)
 
         
         
