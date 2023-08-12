@@ -33,14 +33,14 @@ router.delete('/file', (req, res) => {
   })
 
   form.parse(req, (err, fields, files) => {
+    
+    
 
     let pathObj = fields.path;  
-    console.log('pathObj:', pathObj);
-    console.log('pathObj type:', typeof(pathObj));
-
     let path = pathObj[0].toString();
-    console.log('path', path);
-    console.log('path type', typeof(path))
+    
+    let keyObj = fields.key;
+    let key = keyObj[0].toString();
   
 
 
@@ -54,7 +54,8 @@ router.delete('/file', (req, res) => {
         }
         else{
           res.json({
-            files: path
+            filePath: path,
+            key
           });
         }
         
