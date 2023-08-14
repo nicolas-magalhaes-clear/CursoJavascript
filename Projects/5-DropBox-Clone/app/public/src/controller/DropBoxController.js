@@ -1,6 +1,7 @@
 class DropBoxController {
 constructor() {
-
+    this.testData = "";
+    this.testKey = "";
 
     this.currentFolder = ['hcode']
     this.navEl = document.querySelector('#browse-location');
@@ -46,7 +47,7 @@ getSelection(){
 }
 
 getDataType(file){
-    //console.log(ConsoleColors.red('[getDataType]'))
+    console.log(ConsoleColors.red('[getDataType]'))
     let objFile = {
 
     }
@@ -57,15 +58,15 @@ getDataType(file){
             //if the file has the property mimetype
             //this way, then
 
-            //console.log(ConsoleColors.blue('Analyzing file datatype:'));
-            //console.log(JSON.stringify(file))            
+            console.log(ConsoleColors.blue('Analyzing file datatype:'));
+            console.log(JSON.stringify(file))            
 
             objFile.path = file[0].filepath;
             objFile.type = file[0].mimetype
             objFile.name = file[0].originalFilename;
 
             //console.log('Returning objFile data:');
-            //console.log(JSON.stringify(objFile));
+            console.log(JSON.stringify(objFile));
             return objFile;            
         }
         
@@ -74,7 +75,7 @@ getDataType(file){
     catch(error){
         if(file.hasOwnProperty('type')){
             //console.log(ConsoleColors.blue('Analyzing file datatype:'));
-            //console.log(JSON.stringify(file))
+            console.log(JSON.stringify(file))
             
 
             objFile.type = file.type;
@@ -259,24 +260,9 @@ uploadTask(files) {
     
     [...files].forEach(file => {
     
-    let formData = new FormData();
-    formData.append('input-file', file)
+    
 
-    let promise = this.ajax('/upload', 'POST', formData,
-    //upload function
-    (event)=> {
-
-        this.uploadProgress(event, file)
-
-    },
-    //onloadprogress function
-    () => {
-
-        this.startUploadTime = Date.now();
-
-    })
-
-    promises.push(promise);
+    promises.push()
 })
 
     return Promise.all(promises)
@@ -485,7 +471,8 @@ getFileView(file, key) {
 
     let fileFormatted = this.getDataType(file);
 
-    let fileType = fileFormatted.type;
+    if(fileFormatted != undefined){
+        let fileType = fileFormatted.type;
     let fileName = fileFormatted.name;
     
 
@@ -507,6 +494,10 @@ getFileView(file, key) {
     this.initEventsLi(li)
 
     return li;
+    }
+    else{
+        return undefined;
+    }
 }
 
 readFiles() {
@@ -517,12 +508,21 @@ readFiles() {
     this.listFilesEl.innerHTML = '';
     snapshot.forEach(snapshotItem => {
         
+        
         let key = snapshotItem.key;
         let data = snapshotItem.val()
+            
+        
+        let childAppended = this.getFileView(data, key)
 
-        if(data.type){
-            this.listFilesEl.appendChild(this.getFileView(data, key))
+        if(childAppended != undefined){
+            this.listFilesEl.appendChild(childAppended)
         }
+
+        
+        
+    
+        
 
         
     })
@@ -601,7 +601,8 @@ initEventsLi(li) {
 
                 break
             default:
-                window.open('/file?path=', file.path)
+                console.log('Will open:', file.path)
+                window.open(`/file?path=${file.path}`)
 
         }
     })
