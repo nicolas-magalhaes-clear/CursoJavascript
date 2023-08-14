@@ -1,6 +1,8 @@
 class DropBoxController {
 constructor() {
 
+
+    this.currentFolder = ['hcode']
     this.onSelectionChange = new Event('selectionchange');
 
     this.btnSendFileEl = document.querySelector("#btn-send-file");
@@ -14,7 +16,8 @@ constructor() {
     
     this.btnNewFolder = document.querySelector('#btn-new-folder');
     this.btnRename = document.querySelector('#btn-rename');
-    this.btnDelete = document.querySelector('#btn-delete')
+    this.btnDelete = document.querySelector('#btn-delete');
+    
 
     this.connectFirebase();
     this.initEvents();
@@ -39,6 +42,48 @@ getSelection(){
     return this.listFilesEl.querySelectorAll('.selected');
 }
 
+getDataType(file){
+    //console.log(ConsoleColors.red('[getDataType]'))
+    let objFile = {
+
+    }
+    try{
+
+    
+        if(file[0].hasOwnProperty('mimetype')){
+            //if the file has the property mimetype
+            //this way, then
+
+            //console.log(ConsoleColors.blue('Analyzing file datatype:'));
+            //console.log(JSON.stringify(file))            
+
+            objFile.path = file[0].filepath;
+            objFile.type = file[0].mimetype
+            objFile.name = file[0].originalFilename;
+
+            //console.log('Returning objFile data:');
+            //console.log(JSON.stringify(objFile));
+            return objFile;            
+        }
+        
+
+    }
+    catch(error){
+        if(file.hasOwnProperty('type')){
+            //console.log(ConsoleColors.blue('Analyzing file datatype:'));
+            //console.log(JSON.stringify(file))
+            
+
+            objFile.type = file.type;
+            objFile.name = file.name;
+
+            //console.log('Returning objFile data:');
+            //console.log(JSON.stringify(objFile));
+            return objFile
+        }
+    }
+}
+
 removeTasks(){
     
     let promises = []
@@ -51,10 +96,13 @@ removeTasks(){
         
 
         let formData = new FormData();  
-        console.log(file)
-
         
-        formData.append('path', file['0'].filepath);
+        let fileFormatted = this.getDataType(file);
+        
+        let path = fileFormatted.path;
+        
+
+        formData.append('path', path);
         formData.append('key', key);
 
         promises.push(this.ajax('/file', 'DELETE', formData, onprogress = function(){}, onloadstart = function(){}))
@@ -98,13 +146,26 @@ ajax(url, method='GET', formData = new FormData(), onprogress = function(){}, on
 }
 initEvents() {
     
+    this.btnNewFolder.addEventListener('click', (e) => {
+
+        let name = prompt('Nome da nova pasta');
+
+        if(name){
+            this.getFirebaseRef().push().set({
+                name,
+                type: 'folder',
+                path: this.currentFolder.join('/')
+            })
+        }
+
+    })
+
     this.btnDelete.addEventListener('click', (e)=> {
       this.removeTasks().then(responses => {
         responses.forEach(response => {
-            console.log('response:', response)
+            
             if(response.filePath){
-                console.log('response path:', response.filePath)
-                console.log('response key:', response.key)
+                
 
                 this.getFirebaseRef().child(response.key).remove();
             }
@@ -157,6 +218,7 @@ initEvents() {
     this.uploadTask(event.target.files).then(responses => {
         responses.forEach(resp => {
 
+        
         this.getFirebaseRef().push().set(resp.files['input-file'])
         })
 
@@ -414,10 +476,18 @@ getFileIconView(fileType) {
 }
 
 getFileView(file, key) {
+
+
+    let fileFormatted = this.getDataType(file);
+
+    let fileType = fileFormatted.type;
+    let fileName = fileFormatted.name;
+    
+
+
     
     //File specifications
-    let fileType = file['0'].mimetype;
-    let fileName = file['0'].originalFilename
+    
 
 
     let li = document.createElement('li')
@@ -438,12 +508,10 @@ readFiles() {
     this.getFirebaseRef().on('value', snapshot => {
     this.listFilesEl.innerHTML = '';
     snapshot.forEach(snapshotItem => {
+        
         let key = snapshotItem.key;
         let data = snapshotItem.val()
-        console.log('key:::', key)
-
-        
-        
+                
         this.listFilesEl.appendChild(this.getFileView(data, key))
     })
     })
