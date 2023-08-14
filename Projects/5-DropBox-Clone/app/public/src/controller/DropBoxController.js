@@ -80,12 +80,58 @@ getDataType(file){
 
             objFile.type = file.type;
             objFile.name = file.name;
+            if(file.path){
+                objFile.path = file.path
+            }
 
             //console.log('Returning objFile data:');
             //console.log(JSON.stringify(objFile));
             return objFile
         }
     }
+}
+
+removeFolderTask(ref, name){
+
+    return new Promise((resolve, reject) => {
+
+        let folderRef = this.getFirebaseRef(ref + '/' + name);
+
+        folderRef.on('value', snapshot => {
+            folderRef.off('value');
+            snapshot.forEach(item => {
+                let data = item.val();
+                data.key = item.key;
+
+                if(data.type === 'folder'){
+                    this.removeFolderTask(ref + '/' + name, data.name).then(() => {
+                        resolve({
+                            fields: {
+                                key: data.key
+                            }
+                        })
+                    }).catch(err => {
+                        reject(err);
+                    })
+                }
+                else if(data.type){
+                    this.removeFile(ref + '/' + name, data.name).then(() => {
+                        resolve({
+                            fields: {
+                                key: data.key
+                            }
+                        })
+                    }).catch(err => {
+                        reject(err);
+                    })
+                }
+            })
+
+            folderRef.remove();
+            
+        })
+
+    })
 }
 
 removeTasks(){
@@ -96,25 +142,50 @@ removeTasks(){
         
         let file = JSON.parse(li.dataset.file)
         let key = li.dataset.key;
+        file = this.getDataType(file);
+        let path = file.path;
+        
 
         
 
-        let formData = new FormData();  
-        
-        let fileFormatted = this.getDataType(file);
-        
-        let path = fileFormatted.path;
-        
+        promises.push(new Promise((resolve, reject) => {
+            
+            this.removeFolderTask(this.currentFolder.join('/'), file.name).then(() => {
+                resolve({
+                    fields:{
+                        key
+                    }
+                })
+            })
 
-        formData.append('path', path);
-        formData.append('key', key);
+            if(file.type === 'folder'){
+                
+            }
+            else if(file.type){
 
-        promises.push(this.ajax('/file', 'DELETE', formData, onprogress = function(){}, onloadstart = function(){}))
+                this.removeFile(this.currentFolder.join('/'), file.name).then(() => {
+                    resolve({
+                        fields:{
+                            key
+                        }
+                    })
+                })
+            }
+
+        }))
 
     })
     return Promise.all(promises);
 
 
+}
+
+removeFile(ref, name){
+    let fileRef = firebase.storage().ref(ref).child(name);
+
+            console.log('fileRef');
+
+            return fileRef.delete()
 }
 
 ajax(url, method='GET', formData = new FormData(), onprogress = function(){}, onloadstart = function(){}){
@@ -168,11 +239,16 @@ initEvents() {
       this.removeTasks().then(responses => {
         responses.forEach(response => {
             
-            if(response.filePath){
-                
-
-                this.getFirebaseRef().child(response.key).remove();
+            
+            if(response.fields){
+                console.log('Removing from database')
+                this.getFirebaseRef().child(response.fields.key).remove();
             }
+            
+                
+            
+                
+            
         })
 
     }).catch(err => {
@@ -220,10 +296,21 @@ initEvents() {
     this.inputFilesEl.addEventListener("change", (event) => {
     this.btnSendFileEl.disabled = true
     this.uploadTask(event.target.files).then(responses => {
-        responses.forEach(resp => {
-
+        console.log('responses', responses)
         
-        this.getFirebaseRef().push().set(resp.files['input-file'])
+        responses.forEach(resp => {
+            console.log('respvalue',{
+                name: resp.name,
+                type: resp.contentType,
+                path: resp.customMetadata.downloadURL,
+                size: resp.size
+            })
+            this.getFirebaseRef().push().set({
+                name: resp.name,
+                type: resp.contentType,
+                path: resp.customMetadata.downloadURL,
+                size: resp.size
+            })
         })
 
         this.uploadComplete()
@@ -259,11 +346,40 @@ uploadTask(files) {
 
     
     [...files].forEach(file => {
-    
-    
+        
+        promises.push(new Promise((resolve, reject)=> {
 
-    promises.push()
-})
+        let fileRef = firebase.storage().ref(this.currentFolder.join('/')).child(file.name);
+
+        let task = fileRef.put(file)
+
+        task.on('state_changed', 
+            snapshot =>{
+                this.uploadProgress({
+                    loaded: snapshot.bytesTransferred,
+                    total: snapshot.totalBytes
+                }, file)
+                console.log('progress', snapshot)
+            },
+            error =>{
+                console.error(error)
+                reject(error);
+            }, 
+            () => {
+
+                task.snapshot.ref.getDownloadURL().then(downloadURL => {
+                    task.snapshot.ref.updateMetadata({customMetadata: {downloadURL}}).then(metadata => {
+                        resolve(metadata);
+                    }).catch(error => {
+                        console.error('Error update metadata', error);
+                        reject(error);
+                    })
+                })
+                
+            })
+                
+            }))
+    })
 
     return Promise.all(promises)
 }
@@ -601,8 +717,9 @@ initEventsLi(li) {
 
                 break
             default:
+                console.log('file', file)
                 console.log('Will open:', file.path)
-                window.open(`/file?path=${file.path}`)
+                window.open(file.path)
 
         }
     })
