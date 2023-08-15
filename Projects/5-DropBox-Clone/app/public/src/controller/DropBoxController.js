@@ -46,50 +46,7 @@ getSelection(){
     return this.listFilesEl.querySelectorAll('.selected');
 }
 
-getDataType(file){
-    console.log(ConsoleColors.red('[getDataType]'))
-    let objFile = {
 
-    }
-    try{
-
-    
-        if(file[0].hasOwnProperty('mimetype')){
-            //if the file has the property mimetype
-            //this way, then
-
-            console.log(ConsoleColors.blue('Analyzing file datatype:'));
-            console.log(JSON.stringify(file))            
-
-            objFile.path = file[0].filepath;
-            objFile.type = file[0].mimetype
-            objFile.name = file[0].originalFilename;
-
-            //console.log('Returning objFile data:');
-            console.log(JSON.stringify(objFile));
-            return objFile;            
-        }
-        
-
-    }
-    catch(error){
-        if(file.hasOwnProperty('type')){
-            //console.log(ConsoleColors.blue('Analyzing file datatype:'));
-            console.log(JSON.stringify(file))
-            
-
-            objFile.type = file.type;
-            objFile.name = file.name;
-            if(file.path){
-                objFile.path = file.path
-            }
-
-            //console.log('Returning objFile data:');
-            //console.log(JSON.stringify(objFile));
-            return objFile
-        }
-    }
-}
 
 removeFolderTask(ref, name){
 
@@ -615,6 +572,38 @@ getFileView(file, key) {
         return undefined;
     }
 }
+getDataType(file){
+    let objFile = {
+    }
+    try{
+        if(file[0].hasOwnProperty('mimetype')){
+            //if the file has the property mimetype
+            //this way, then
+            console.log(ConsoleColors.blue('Analyzing file datatype:'));
+            console.log(JSON.stringify(file))
+            objFile.path = file[0].filepath;
+            objFile.type = file[0].mimetype
+            objFile.name = file[0].originalFilename;
+            //console.log('Returning objFile data:');
+            console.log(JSON.stringify(objFile));
+            return objFile;
+        }
+    }
+    catch(error){
+        if(file.hasOwnProperty('type')){
+            //console.log(ConsoleColors.blue('Analyzing file datatype:'));
+            console.log(JSON.stringify(file))
+            objFile.type = file.type;
+            objFile.name = file.name;
+            if(file.path){
+                objFile.path = file.path
+            }
+            //console.log('Returning objFile data:');
+            //console.log(JSON.stringify(objFile));
+            return objFile
+        }
+    }
+}
 
 readFiles() {
 
@@ -628,7 +617,8 @@ readFiles() {
         let key = snapshotItem.key;
         let data = snapshotItem.val()
             
-        
+        console.log('DATAA')
+        console.log(data)        
         let childAppended = this.getFileView(data, key)
 
         if(childAppended != undefined){
