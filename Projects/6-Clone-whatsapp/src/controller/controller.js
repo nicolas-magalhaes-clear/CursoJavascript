@@ -9,6 +9,11 @@ class WhatsappController{
         
     }
 
+    /*
+    --------------------------
+    PROTOTYPES DECLARATIONS AREA
+    --------------------------
+    */
     elementsPrototype(){
        Element.prototype.hide = function(){
             this.style.display = 'none'
@@ -66,14 +71,44 @@ class WhatsappController{
             })
             return json
        }
-    }
+    }//end method elementsPrototype
 
+    /*
+    --------------------------
+    END PROTOTYPES DECLARATIONS AREA
+    --------------------------
+    */
+
+
+    /*
+    --------------------------
+    PANEL CONTROL METHODS AREA
+    --------------------------
+    */
+    closeAllMainPanel(){
+        this.el.panelMessagesContainer.hide();
+        this.el.panelDocumentPreview.removeClass('open');
+        this.el.panelCamera.removeClass('open')
+    }//end method closeAllMainPanel
+    closeMenuAttach(e){
+
+        document.removeEventListener('click', this.closeMenuAttach);
+        this.el.menuAttach.removeClass('open');
+        
+
+    }//end method closeMenuAttach
     closeAllLeftPanel(){
 
         this.el.panelAddContact.hide();
         this.el.panelEditProfile.hide();
 
-    }
+    }//end method closeAllLeftPanel
+
+    /*
+    --------------------------
+    END OF PANEL CONTROL METHODS AREA
+    --------------------------
+    */
 
     loadElements(){
 
@@ -86,10 +121,12 @@ class WhatsappController{
 
         })
         console.log(this.el)
-    }
+    }//End METHOD loadElements
 
     initEvents(){
-
+        //---------------------------
+        //LEFT MENU AREA
+        //---------------------------
         this.el.myPhoto.on('click', e=>{
 
             this.closeAllLeftPanel();
@@ -142,7 +179,102 @@ class WhatsappController{
 
         })
 
-        this.el.contacts
+        this.el.contactsMessagesList.querySelectorAll('.contact-item').forEach(item=>{
+            item.on('click', e=>{
+                this.el.home.hide();
+                this.el.main.css({
+                    display: 'flex'
+                })
+            })
+        })
+        //------------------------------
+        //END LEFT PANEL AREA
+        //------------------------------
 
-    }
+
+        //------------------------------
+        //ATTACH ITEMS AREA
+        //------------------------------
+        this.el.btnAttach.on('click', e=>{
+            e.stopPropagation();
+            this.el.menuAttach.addClass('open');
+
+            document.addEventListener('click', this.closeMenuAttach.bind(this))
+        })
+
+            //photo attach area
+        this.el.btnAttachPhoto.on('click', e=>{
+            this.el.inputPhoto.click();
+        })
+        this.el.inputPhoto.on('change', e=>{
+            console.log(this.el.inputPhoto.files);
+
+            [...this.el.inputPhoto.files].forEach(file => {
+                
+                console.log(file);
+            })
+        })
+            //end photo attach area
+
+            //attach camera area
+        this.el.btnAttachCamera.on('click', e=>{
+        
+            this.closeAllMainPanel();
+            this.el.panelMessagesContainer.hide()
+            this.el.panelCamera.addClass('open');
+            this.el.panelCamera.css({
+                'height':'calc(100%)'
+            })
+
+        })
+
+        this.el.btnClosePanelCamera.on('click', e=>{
+            this.closeAllMainPanel();
+            this.el.panelMessagesContainer.show();
+        })
+        this.el.btnTakePicture.on('click', e=>{
+            console.log('Take picture')
+        })
+            //end attach camera area
+        
+            //attach document area
+        this.el.btnAttachDocument.on('click', e=>{
+            
+            this.closeAllMainPanel();
+            this.el.panelDocumentPreview.addClass('open');
+            this.el.panelDocumentPreview.css({
+                'height': 'calc(100%)'
+            })
+        })
+        this.el.btnClosePanelDOocumentPreview.on('click', e=>{
+            this.closeAllMainPanel();
+        })
+        this.el.btnSendDocument.on('click', e=>{
+            console.log('send document');
+        })
+            //end document attach area
+
+            //contacts attach area
+        this.el.btnAttachContact.on('click', e=>{
+            this.el.modalContacts.show();
+        })
+        this.el.btnCloseModalContacts.on('click', e=>{
+            this.el.modalContacts.hide()
+        })
+            //end contacts attach area
+
+        //------------------------------
+        //END ATTACH ITEMS AREA
+        //------------------------------
+
+        //------------------------------
+        //USER INPUTS (MESSAGE, EMOJI, MICROPHONE) AREA
+        //------------------------------
+        
+        this.el.btnSendMicrophone.on('click', )
+
+        //------------------------------
+        //END USER INPUTS (MESSAGE, EMOJI, MICROPHONE) AREA
+        //------------------------------
+    }//end method initEvents
 }
