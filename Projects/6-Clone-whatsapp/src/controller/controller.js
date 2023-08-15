@@ -292,6 +292,7 @@ class WhatsappController{
         //USER INPUTS (MESSAGE, EMOJI, MICROPHONE) AREA
         //------------------------------
         
+            //microphone events
         this.el.btnSendMicrophone.on('click', e=>{
             this.el.recordMicrophone.show();
             this.el.btnSendMicrophone.hide();
@@ -305,7 +306,56 @@ class WhatsappController{
         this.el.btnFinishMicrophone.on('click', e=>{
             this.closeRecordMicrophone();
         })
+            //end microphone events
 
+            //message inputs text
+        this.el.inputText.on('keyup', e=>{
+            if(this.el.inputText.innerHTML && this.el.inputText.innerHTML != '<br>'){
+                
+                this.el.inputPlaceholder.hide()
+                this.el.btnSendMicrophone.hide()
+                this.el.btnSend.show();
+
+            }
+            else{
+
+                this.el.inputPlaceholder.show()
+                this.el.btnSendMicrophone.show();
+                this.el.btnSend.hide();
+                
+            }
+        });
+        this.el.inputText.on('keypress', e=>{
+
+            if(e.key === 'Enter' && !e.crtlKey){
+
+                e.preventDefault();
+                this.el.btnSend.click()
+            }
+
+        })
+            //end message inputs text
+
+            //send message button
+        this.el.btnSend.on('click', e=>{
+
+            console.log(this.el.inputText.innerHTML);
+
+        })
+            //end send message button
+
+        this.el.btnEmojis.on('click', e=>{
+            this.el.panelEmojis.toggleClass('open');
+            this.el.panel
+        })
+
+        this.el.panelEmojis.querySelectorAll('.emojik').forEach(emoji=>{
+
+            emoji.on('click', e=>{
+                console.log(emoji.dataset.unicode);
+            })
+
+        })
 
         //------------------------------
         //END USER INPUTS (MESSAGE, EMOJI, MICROPHONE) AREA
