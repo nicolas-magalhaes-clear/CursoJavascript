@@ -110,6 +110,36 @@ class WhatsappController{
     --------------------------
     */
 
+    /*
+    --------------------------------
+    USER INPUTS CONTROL AREA
+    --------------------------------
+    */
+
+    closeRecordMicrophone(){
+        this.el.recordMicrophone.hide();
+        this.el.btnSendMicrophone.show();
+        clearInterval(this._recordMicrophoneInterval)
+    }
+    startRecordMicrophoneTime(){
+
+        let start = Date.now();
+
+        this._recordMicrophoneInterval = setInterval(()=>{
+            
+            this.el.recordMicrophoneTimer.innerHTML = Format.toTime((Date.now()- start))
+        }, 100)
+
+    }
+
+    /*
+    --------------------------------
+    END OF USER INPUTS CONTROL AREA
+    --------------------------------
+    */
+
+
+
     loadElements(){
 
         this.el = {};
@@ -147,27 +177,21 @@ class WhatsappController{
             
 
         })
-
         this.el.btnClosePanelEditProfile.on('click', e=>{
             this.el.panelEditProfile.removeClass('open')
         });
-
-
         this.el.btnClosePanelAddContact.on('click', e=>{
             this.el.panelAddContact.removeClass('open')
         })
-
         this.el.photoContainerEditProfile.on('click', e=>{
             this.el.inputProfilePhoto.click()
         })
-
         this.el.inputNamePanelEditProfile.on('keypress', e=>{
             if(e.key === 'Enter'){
                 e.preventDefault();
                 this.el.btnSavePanelEditProfile.click();
             }
         })
-
         this.el.btnSavePanelEditProfile.on('click', e=>{
             console.log(this.el.inputNamePanelEditProfile.innerHTML);
         })
@@ -178,7 +202,6 @@ class WhatsappController{
 
 
         })
-
         this.el.contactsMessagesList.querySelectorAll('.contact-item').forEach(item=>{
             item.on('click', e=>{
                 this.el.home.hide();
@@ -191,7 +214,6 @@ class WhatsappController{
         //END LEFT PANEL AREA
         //------------------------------
 
-
         //------------------------------
         //ATTACH ITEMS AREA
         //------------------------------
@@ -201,7 +223,6 @@ class WhatsappController{
 
             document.addEventListener('click', this.closeMenuAttach.bind(this))
         })
-
             //photo attach area
         this.el.btnAttachPhoto.on('click', e=>{
             this.el.inputPhoto.click();
@@ -246,7 +267,7 @@ class WhatsappController{
                 'height': 'calc(100%)'
             })
         })
-        this.el.btnClosePanelDOocumentPreview.on('click', e=>{
+        this.el.btnClosePanelDocumentPreview.on('click', e=>{
             this.closeAllMainPanel();
         })
         this.el.btnSendDocument.on('click', e=>{
@@ -271,7 +292,20 @@ class WhatsappController{
         //USER INPUTS (MESSAGE, EMOJI, MICROPHONE) AREA
         //------------------------------
         
-        this.el.btnSendMicrophone.on('click', )
+        this.el.btnSendMicrophone.on('click', e=>{
+            this.el.recordMicrophone.show();
+            this.el.btnSendMicrophone.hide();
+            this.startRecordMicrophoneTime();
+        })
+
+        this.el.btnCancelMicrophone.on('click', e=>{
+            this.closeRecordMicrophone();
+        })
+
+        this.el.btnFinishMicrophone.on('click', e=>{
+            this.closeRecordMicrophone();
+        })
+
 
         //------------------------------
         //END USER INPUTS (MESSAGE, EMOJI, MICROPHONE) AREA
