@@ -1,6 +1,7 @@
 import {Format} from './../utils/format'
 import {CameraController} from './CameraController';
-
+import {MicrophoneController} from './MicrophoneController';
+import { DocumentPreviewController } from './DocumentPreviewController';
 export class WhatsappController{
 
 
@@ -259,9 +260,31 @@ export class WhatsappController{
             this._camera.stop();
         })
         this.el.btnTakePicture.on('click', e=>{
-            console.log('Take picture')
+            let dataUrl = this._camera.takePicture();
+            this.el.pictureCamera.src = dataUrl;
+            this.el.pictureCamera.show();
+            this.el.videoCamera.hide();
+            this.el.containerTakePicture.hide();
+            this.el.btnReshootPanelCamera.show();
+            this.el.containerSendPicture.show();
+
+
         })
-        
+
+        this.el.btnReshootPanelCamera.on('click', e=>{
+
+            this.el.pictureCamera.hide();
+            this.el.videoCamera.show();
+            this.el.containerTakePicture.show();
+            this.el.btnReshootPanelCamera.hide();
+            this.el.containerSendPicture.hide();
+
+        })
+        this.el.btnSendPicture.on('click', e=>{
+            console.log(this.el.pictureCamera.src)
+
+
+        })
             //end attach camera area
         
             //attach document area
@@ -272,6 +295,57 @@ export class WhatsappController{
             this.el.panelDocumentPreview.css({
                 'height': 'calc(100%)'
             })
+            this.el.inputDocument.click();
+            
+        })
+        this.el.inputDocument.on('change', e=>{
+            console.log('changed')
+            if(this.el.inputDocument.files.length){
+                let file = this.el.inputDocument.files[0];
+
+                this._documentPreviewController = new DocumentPreviewController(file);
+                this._documentPreviewController.getPreviewData().then(result => {
+                    console.log('RESULT')
+                    console.log(result)
+                    this.el.imgPanelDocumentPreview.src = result.src;
+                    this.el.infoPanelDocumentPreview.innerHTML = result.info;
+                    this.el.imagePanelDocumentPreview.show();
+                    this.el.filePanelDocumentPreview.hide();
+
+
+                }).catch(err =>{
+                    
+                    switch(file.type){
+
+                        case 'application/vnd.ms-excel':
+                        case 'application/vnd.openxmlformats-officedocument.spreasheetml.sheet':
+                            this.el.iconPanelDocumentPreview.className = 'jcxhw icon-doc-xls'
+                            break
+
+                        case 'application/vnd.ms-powerpoint':
+                        case 'application/vnd.openxmlformats-officedocument.presentationml.presentation':
+                            this.el.iconPanelDocumentPreview.className = 'jcxhw icon-doc-ppt'
+                            break;
+                        
+                        case 'application/msword':
+                        case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+                            this.el.iconPanelDocumentPreview.className = 'jcxhw icon-doc-doc'
+                            break
+
+                        default:
+                            this.el.iconPanelDocumentPreview.className = 'jcxhw icon-doc-generic'
+                            break
+                    }
+
+                    this.el.filenamePanelDocumentPreview.innerHTML = file.name;
+                    this.el.imagePanelDocumentPreview.hide();
+                    this.el.filePanelDocumentPreview.show()
+
+                })
+                
+            }
+            
+
         })
         this.el.btnClosePanelDocumentPreview.on('click', e=>{
             this.closeAllMainPanel();
@@ -303,6 +377,8 @@ export class WhatsappController{
             this.el.recordMicrophone.show();
             this.el.btnSendMicrophone.hide();
             this.startRecordMicrophoneTime();
+
+            this._microphoneController = new MicrophoneController();
         })
 
         this.el.btnCancelMicrophone.on('click', e=>{
