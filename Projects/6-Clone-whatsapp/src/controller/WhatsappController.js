@@ -382,20 +382,25 @@ export class WhatsappController{
 
             this._microphoneController = new MicrophoneController();
 
-            this._microphoneController.on('play', (audio) => {
+            this._microphoneController.on('ready', (audio) => {
 
-                console.log('recebi evento play', audio)
+                this._microphoneController.startRecorder()
+                
+                
             })
 
             
         })
 
+
+
         this.el.btnCancelMicrophone.on('click', e=>{
+           this._microphoneController.stopRecorder();
             this.closeRecordMicrophone();
         })
 
         this.el.btnFinishMicrophone.on('click', e=>{
-            this._microphoneController.stop();
+            this._microphoneController.stopRecorder();
             this.closeRecordMicrophone();
         })
             //end microphone events
