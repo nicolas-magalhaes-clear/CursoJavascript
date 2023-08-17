@@ -256,6 +256,7 @@ initEvents() {
         console.log('responses', responses)
         
         responses.forEach(resp => {
+            
             console.log('respvalue',{
                 name: resp.name,
                 type: resp.contentType,
