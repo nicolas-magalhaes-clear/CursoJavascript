@@ -17,7 +17,7 @@ export class Firebase{
     }
 
     init(){
-        if(!this._initalized){
+        if(!window._initalizedFirebase){
             firebase.initializeApp(this._config)
 
 
@@ -27,7 +27,7 @@ export class Firebase{
                 timeStampsInSnapshots: true
             })
             
-            this._initalized = true;
+            window._initalizedFirebase = true;
         }
         
     }
@@ -54,12 +54,12 @@ export class Firebase{
 
     static db(){
 
-        //return firebase.firestore();
+        return firebase.firestore();
 
     }
 
     static hd(){
-        //return firebase.storage()
+        return firebase.storage()
     }
 
 }
