@@ -17,31 +17,22 @@ export class User extends Model{
     set name(value){ this._data.name = value}
     
     get email(){return this._data.email;}
-    set email(value){ this._data.name = value}
+    set email(value){ this._data.email = value}
 
     get photo(){return this._data.photo;}
-    set photo(value){ this._data.name = value}
+    set photo(value){ this._data.photo = value}
 
     getById(id){
         return new Promise((s,f)=>{
-            
+            console.log('id received:', id);
             User.findByEmail(id).onSnapshot(doc=>{
+                console.log('DOCCCC:::', doc.data())
                 this.fromJSON(doc.data())
 
                 s(doc)
             })
             
-/*
-            User.findByEmail(id).get().then((doc) =>{
 
-                this.fromJSON(doc.data())
-
-                s(doc)
-            }).catch(err=>{
-                console.error(err);
-                f(err)
-            })
-            */
 
         })
     }
@@ -57,8 +48,57 @@ export class User extends Model{
     }
 
     static findByEmail(email){
-        
+        console.log('email:::', email)
         return User.getRef().doc(email);
+    }
+
+    /** 
+    *Adds a contact to firebase
+    */
+    addContact(contact){
+        //add a contact to firebase
+        return User.getContactsRef(this.email)
+                .doc(btoa(contact.email))
+                .set(contact.toJSON())
+    }
+
+    static getContactsRef(id){
+
+        return User.getRef()
+                .doc(id)
+                .collection('/contacts');
+    }
+
+   
+
+    getContacts(){
+        return new Promise((s,f)=>{
+
+            User.getContactsRef(this.email).onSnapshot(docs =>{
+
+                let contacts = [];
+
+                docs.forEach(doc => {
+                    console.log('DOCSSSS OKKKK')
+                    let data = doc.data();
+
+                    console.log('DOCKS AQUI >>', doc)
+                    
+                    data.id = doc.id;
+                    console.log('DATA>>>', data)
+                    contacts.push(data);
+                
+                })
+            
+                this.trigger('contactschange', docs);
+
+                console.log('CONTACTSSSS:', contacts);
+                s(contacts);
+
+            })
+            
+
+        })
     }
 
 }
