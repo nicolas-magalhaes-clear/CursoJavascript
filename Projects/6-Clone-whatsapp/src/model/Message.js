@@ -1,3 +1,4 @@
+import { Firebase } from "../utils/Firebase";
 import { Model } from "./Model";
 
 export class Message extends Model{
@@ -296,5 +297,23 @@ export class Message extends Model{
 
         div.firstElementChild.classList.add(className);
         return div
+    }
+
+
+    static getRef(chatId){
+        return Firebase.db()
+                .collection('chats')
+                .doc(chatId)
+                .collection('messages')
+    }
+    static send(chatId, from, type, content){
+
+        return Message.getRef(chatId).add({
+            content,
+            timeStamp: new Date(),
+            status: wait,
+            type,
+            from 
+        });
     }
 }
