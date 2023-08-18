@@ -41,7 +41,8 @@ export class Firebase{
                 console.log('RESULTTTT:::', result)
                 let token = result.credential.accessToken;
                 let user  = result.user;
-
+                console.log('User:', user);
+                console.log('TOKEN', token)
                 s({
                     user,
                     token

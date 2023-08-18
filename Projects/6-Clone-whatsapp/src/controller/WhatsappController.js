@@ -33,6 +33,7 @@ export class WhatsappController{
 
             this._user.on('datachange', data =>{
 
+                console.log('DATAAAAAAAA:::', data)
                 document.querySelector('title').innerHTML = data.name + ' - Whatsapp Clone'
                 
                 this.el.inputNamePanelEditProfile.innerHTML = data.name
@@ -262,6 +263,20 @@ export class WhatsappController{
 
             let formData = new FormData(this.el.formPanelAddContact)
 
+            let contact = new User(formData.get('email'));
+
+            contact.on('datachange', data=>{
+                if(data.name){
+                    this._user.addContact(contact).then(()=>{
+                        this.el.btnClosePanelAddContact.click();
+                        contact.info('Contato foi adicionado');
+
+                    });
+                }
+                else{
+                    console.error('Usuário não foi encontrado');
+                }
+            })
 
         })
         this.el.contactsMessagesList.querySelectorAll('.contact-item').forEach(item=>{
