@@ -5,6 +5,7 @@ import { DocumentPreviewController } from './DocumentPreviewController';
 import { MicrophoneController } from './MicrophoneController';
 import { Firebase } from '../utils/Firebase';
 import { User } from '../model/User';
+import { Chat } from '../model/Chat';
 
 
 export class WhatsappController{
@@ -364,11 +365,23 @@ export class WhatsappController{
 
             contact.on('datachange', data=>{
                 if(data.name){
-                    this._user.addContact(contact).then(()=>{
-                        this.el.btnClosePanelAddContact.click();
-                        console.info('Contato foi adicionado');
 
-                    });
+                    Chat.createIfNotExists(this._user.email, contact.email).then((chat)=>{
+
+                        contact.chatId = chat.id;
+
+                        this._user.chatId = chat.id
+
+                        contact.addContact(this._user);
+
+                        this._user.addContact(contact).then(()=>{
+                            this.el.btnClosePanelAddContact.click();
+                            console.info('Contato foi adicionado');
+    
+                        });
+                    })
+
+                    
                 }
                 else{
                     console.error('Usuário não foi encontrado');

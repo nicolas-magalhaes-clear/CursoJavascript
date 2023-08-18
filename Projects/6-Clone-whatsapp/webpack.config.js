@@ -11,5 +11,9 @@ module.exports = {
         filename: '[name].bundle.js',
         path: path.join(__dirname,'/dist'),
         publicPath: 'dist'
+    },
+    devServer:{
+        host: '127.0.0.1',
+        port: 8080,
     }
 }
