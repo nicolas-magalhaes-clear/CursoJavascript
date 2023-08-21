@@ -41,7 +41,7 @@ export class Chat extends Model{
                 users,
                 timeStamp: new Date()
             }).then(doc =>{
-
+                console.log('OKKKKKKKK', doc)
                 Chat.getRef().doc(doc.id).get().then(chat=>{
                     s(chat)
                 }).catch(err=>{

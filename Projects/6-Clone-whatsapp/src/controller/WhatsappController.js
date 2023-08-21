@@ -6,6 +6,7 @@ import { MicrophoneController } from './MicrophoneController';
 import { Firebase } from '../utils/Firebase';
 import { User } from '../model/User';
 import { Chat } from '../model/Chat';
+import { Message } from '../model/Message';
 
 
 export class WhatsappController{
@@ -27,20 +28,49 @@ export class WhatsappController{
 
     setActiveChat(contact){
 
+        if(this._contactActive){
+            Message.getRef(this._contactActive.idChat).orderBy('timeStamp').onSnapshot(()=>{})
+        }
         this._contactActive = contact
         this.el.activeName.innerHTML = contact.name;
-                        this.el.activeStatus.innerHTML = contact.activeStatus
+        this.el.activeStatus.innerHTML = contact.activeStatus
 
-                        if(contact.photo){
-                            let img = this.el.activePhoto;
-                            img.src = contact.photo;
-                            img.show()
-                        }
+        if(contact.photo){
+            let img = this.el.activePhoto;
+            img.src = contact.photo;
+            img.show()
+        }
 
-                        this.el.home.hide();
-                        this.el.main.css({
-                            display: 'flex'
-                        })
+        this.el.home.hide();
+        this.el.main.css({
+            display: 'flex'
+        })
+        Message.getRef(this._contactActive.chatId).orderBy('timeStamp').onSnapshot(docs =>{
+            this.el.panelMessagesContainer.innerHTML = "";
+            console.log('OK CHEGOU');
+            console.log('DOC:::', docs)
+            this.docsTest = docs
+            docs.forEach(doc=>{
+                
+                let data = doc.data();
+                data.id = doc.id; 
+                
+                
+
+                let me = (data.from === this._user.email);
+
+                if(!this.el.panelMessagesContainer.querySelector('#_' +data.id)){
+
+                    let message = new Message();
+                    message.fromJSON(data);
+                    let view = message.getViewElement(me)
+                    this.el.panelMessagesContainer.appendChild(view)
+                    
+                }
+                
+            })
+
+        })
     }
 
     initContacts(){
@@ -111,7 +141,7 @@ export class WhatsappController{
                                             
                     `;
                     div.on('click', e=>{
-
+                        console.log('setting active chat')
                         this.setActiveChat(contact)
                         
                     })

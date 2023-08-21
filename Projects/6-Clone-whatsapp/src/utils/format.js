@@ -11,6 +11,21 @@ export class Format{
 
     }
 
+    static timeStampToTime(timeStamp){
+        return (timeStamp && typeof timeStamp.toDate === 'function') ? Format.dateToTime(timeStamp.toDate()) : '';
+    }
+
+
+    static dateToTime(date, locale = 'pt-BR'){
+        console.log('retornando:::', date.toLocaleTimeString(this.locale, {
+            hour: '2-digit',
+            minute: '2-digit'
+        }) )
+        return date.toLocaleTimeString(this.locale, {
+            hour: '2-digit',
+            minute: '2-digit'
+        }) 
+    }
     static toTime(duration){
         let seconds = parseInt((duration / 1000) % 60);
         let minutes = parseInt((duration * 60) % 60);

@@ -1,4 +1,5 @@
 import { Firebase } from "../utils/Firebase";
+import { Format } from "../utils/format";
 import { Model } from "./Model";
 
 export class Message extends Model{
@@ -9,7 +10,7 @@ export class Message extends Model{
 
     }
 
-    get content(){ this._data.content};
+    get content(){ return this._data.content};
     set content(value){ this._data.content = value}
 
     get type(){ return this._data.type}
@@ -21,6 +22,9 @@ export class Message extends Model{
     get status(){ return this._data.status}
     set status(value) { this._data.status = value}
 
+    get id(){ return this._data.id}
+    set id(value){this._data.id = value}
+
 
     getViewElement(me = true){  
 
@@ -28,7 +32,9 @@ export class Message extends Model{
         let div = document.createElement('div');
 
         div.className = 'message';
-
+        console.log('DATA1----:', this._data)
+        console.log('content:::', this.content)
+        console.log('TYPE:', this.type)
         switch(this.type){
 
 
@@ -276,16 +282,16 @@ export class Message extends Model{
                 break
             default:
                 div.innerHTML = `                    
-                <div class="font-style _3DFk6  tail">
+                <div class="font-style _3DFk6  id="${this.id}"tail">
                     <span class="tail-container"></span>
                     <span class="tail-container highlight"></span>
                     <div class="Tkt2p">
                         <div class="_3zb-j ZhF0n">
-                            <span dir="ltr" class="selectable-text invisible-space message-text">Oi!</span>
+                            <span dir="ltr" class="selectable-text invisible-space message-text">${this.content}</span>
                         </div>
                         <div class="_2f-RV">
                             <div class="_1DZAH">
-                                <span class="msg-time">11:33</span>
+                                <span class="msg-time">${Format.timeStampToTime(this.timeStamp)}</span>
                             </div>
                         </div>
                     </div>
@@ -301,17 +307,21 @@ export class Message extends Model{
 
 
     static getRef(chatId){
+        console.log('chatID-.-.-.-.', chatId)
         return Firebase.db()
-                .collection('chats')
+                .collection('/chats')
                 .doc(chatId)
-                .collection('messages')
+                .collection('/messages')
     }
     static send(chatId, from, type, content){
-
+        console.log('chatid:', chatId)
+        console.log('from:', from);
+        console.log('type:', type);
+        console.log('content:', content)
         return Message.getRef(chatId).add({
             content,
             timeStamp: new Date(),
-            status: wait,
+            status: 'wait',
             type,
             from 
         });
