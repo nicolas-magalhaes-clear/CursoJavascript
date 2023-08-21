@@ -27,7 +27,7 @@ export class MicrophoneController extends ClassEvent{
             this.trigger('ready', this._stream);
             
         }).catch(err =>{
-            console.log('err', err)
+            console.error('err', err)
         })
     }
 
@@ -74,7 +74,7 @@ export class MicrophoneController extends ClassEvent{
                     lastModified: Date.now()
                 })
 
-                console.log('file', file)
+                
 
                 let reader = new FileReader();
 

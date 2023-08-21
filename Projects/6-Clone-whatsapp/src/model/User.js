@@ -27,9 +27,9 @@ export class User extends Model{
 
     getById(id){
         return new Promise((s,f)=>{
-            console.log('id received:', id);
+           // console.log('id received:', id);
             User.findByEmail(id).onSnapshot(doc=>{
-                console.log('DOCCCC:::', doc.data())
+                //console.log('DOCCCC:::', doc.data())
                 this.fromJSON(doc.data())
 
                 s(doc)
@@ -51,7 +51,7 @@ export class User extends Model{
     }
 
     static findByEmail(email){
-        console.log('email:::', email)
+       // console.log('email:::', email)
         return User.getRef().doc(email);
     }
 
@@ -82,20 +82,20 @@ export class User extends Model{
                 let contacts = [];
 
                 docs.forEach(doc => {
-                    console.log('DOCSSSS OKKKK')
+                    //console.log('DOCSSSS OKKKK')
                     let data = doc.data();
 
-                    console.log('DOCKS AQUI >>', doc)
+                    //console.log('DOCKS AQUI >>', doc)
                     
                     data.id = doc.id;
-                    console.log('DATA>>>', data)
+                    //console.log('DATA>>>', data)
                     contacts.push(data);
                 
                 })
             
                 this.trigger('contactschange', docs);
 
-                console.log('CONTACTSSSS:', contacts);
+                //console.log('CONTACTSSSS:', contacts);
                 s(contacts);
 
             })

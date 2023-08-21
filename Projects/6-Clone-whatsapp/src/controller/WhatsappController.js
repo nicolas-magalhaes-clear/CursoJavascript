@@ -45,13 +45,17 @@ export class WhatsappController{
         this.el.main.css({
             display: 'flex'
         })
+        
         Message.getRef(this._contactActive.chatId).orderBy('timeStamp').onSnapshot(docs =>{
             this.el.panelMessagesContainer.innerHTML = "";
-            console.log('OK CHEGOU');
-            console.log('DOC:::', docs)
-            this.docsTest = docs
+            console.log('first render');
+            let autoScroll = true;
+            let scrollTop;
+            let scrollTopMax;   
             docs.forEach(doc=>{
+            
                 
+
                 let data = doc.data();
                 data.id = doc.id; 
                 
@@ -61,14 +65,32 @@ export class WhatsappController{
 
                 if(!this.el.panelMessagesContainer.querySelector('#_' +data.id)){
 
+            
                     let message = new Message();
                     message.fromJSON(data);
                     let view = message.getViewElement(me)
-                    this.el.panelMessagesContainer.appendChild(view)
+                    this.el.panelMessagesContainer.appendChild(view);
+
+                    
                     
                 }
                 
             })
+
+            
+            
+            scrollTop = this.el.panelMessagesContainer.scrollTop;
+            //console.log('scrolltop value now:', scrollTop)
+            scrollTopMax = this.el.panelMessagesContainer.scrollHeight - this.el.panelMessagesContainer.offsetHeight;
+            //console.log('scrolltopMax value now:', scrollTopMax)
+            autoScroll = ((scrollTop + 45)>= (scrollTopMax - 1));
+            //console.log('autoscroll status:', autoScroll)
+            if(autoScroll){
+                this.el.panelMessagesContainer.scrollTop = (this.el.panelMessagesContainer.scrollHeight - this.el.panelMessagesContainer.offsetHeight)
+            }
+            else{
+                this.el.panelMessagesContainer.scrollTop = scrollTop
+            }
 
         })
     }
@@ -81,10 +103,10 @@ export class WhatsappController{
             this._user.on('contactschange', docs=>{
 
                 this.el.contactsMessagesList.innerHTML = '';
-                console.log('DOCSSSS OK:::', docs)
+                //console.log('DOCSSSS OK:::', docs)
                 docs.forEach(doc => {
 
-                    console.log('FOREACHCH')
+                    //console.log('FOREACHCH')
                     let div = document.createElement('div');
 
                     let contact = doc.data();
@@ -141,7 +163,7 @@ export class WhatsappController{
                                             
                     `;
                     div.on('click', e=>{
-                        console.log('setting active chat')
+                        //console.log('setting active chat')
                         this.setActiveChat(contact)
                         
                     })
@@ -162,7 +184,7 @@ export class WhatsappController{
 
             this._user.on('datachange', data =>{
 
-                console.log('DATAAAAAAAA:::', data)
+               // console.log('DATAAAAAAAA:::', data)
                 document.querySelector('title').innerHTML = data.name + ' - Whatsapp Clone'
                 
                 this.el.inputNamePanelEditProfile.innerHTML = data.name
@@ -448,7 +470,7 @@ export class WhatsappController{
             this.el.inputPhoto.click();
         })
         this.el.inputPhoto.on('change', e=>{
-            console.log(this.el.inputPhoto.files);
+            //console.log(this.el.inputPhoto.files);
 
             [...this.el.inputPhoto.files].forEach(file => {
                 
@@ -497,7 +519,7 @@ export class WhatsappController{
 
         })
         this.el.btnSendPicture.on('click', e=>{
-            console.log(this.el.pictureCamera.src)
+            //console.log(this.el.pictureCamera.src)
 
 
         })
@@ -515,14 +537,14 @@ export class WhatsappController{
             
         })
         this.el.inputDocument.on('change', e=>{
-            console.log('changed')
+            //console.log('changed')
             if(this.el.inputDocument.files.length){
                 let file = this.el.inputDocument.files[0];
 
                 this._documentPreviewController = new DocumentPreviewController(file);
                 this._documentPreviewController.getPreviewData().then(result => {
-                    console.log('RESULT')
-                    console.log(result)
+                    //console.log('RESULT')
+                    //console.log(result)
                     this.el.imgPanelDocumentPreview.src = result.src;
                     this.el.infoPanelDocumentPreview.innerHTML = result.info;
                     this.el.imagePanelDocumentPreview.show();
@@ -567,7 +589,7 @@ export class WhatsappController{
             this.closeAllMainPanel();
         })
         this.el.btnSendDocument.on('click', e=>{
-            console.log('send document');
+            //console.log('send document');
         })
             //end document attach area
 
@@ -674,7 +696,7 @@ export class WhatsappController{
         this.el.panelEmojis.querySelectorAll('.emojik').forEach(emoji=>{
 
             emoji.on('click', e=>{
-                console.log(emoji.dataset.unicode);
+                //console.log(emoji.dataset.unicode);
 
                 let img = this.el.imgEmojiDefault.cloneNode();
 

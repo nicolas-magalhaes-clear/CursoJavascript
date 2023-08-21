@@ -32,9 +32,9 @@ export class Message extends Model{
         let div = document.createElement('div');
 
         div.className = 'message';
-        console.log('DATA1----:', this._data)
-        console.log('content:::', this.content)
-        console.log('TYPE:', this.type)
+        //console.log('DATA1----:', this._data)
+        //console.log('content:::', this.content)
+        //console.log('TYPE:', this.type)
         switch(this.type){
 
 
@@ -282,7 +282,7 @@ export class Message extends Model{
                 break
             default:
                 div.innerHTML = `                    
-                <div class="font-style _3DFk6  id="${this.id}"tail">
+                <div class="font-style _3DFk6  id="_${this.id}"tail">
                     <span class="tail-container"></span>
                     <span class="tail-container highlight"></span>
                     <div class="Tkt2p">
@@ -307,17 +307,17 @@ export class Message extends Model{
 
 
     static getRef(chatId){
-        console.log('chatID-.-.-.-.', chatId)
+        //console.log('chatID-.-.-.-.', chatId)
         return Firebase.db()
                 .collection('/chats')
                 .doc(chatId)
                 .collection('/messages')
     }
     static send(chatId, from, type, content){
-        console.log('chatid:', chatId)
-        console.log('from:', from);
-        console.log('type:', type);
-        console.log('content:', content)
+        //console.log('chatid:', chatId)
+       // console.log('from:', from);
+        //console.log('type:', type);
+        //console.log('content:', content)
         return Message.getRef(chatId).add({
             content,
             timeStamp: new Date(),

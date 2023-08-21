@@ -10,9 +10,9 @@ export class Model extends ClassEvent{
 
 
     fromJSON(json){
-        console.log('JSON RECEIVED:', json);
+        //console.log('JSON RECEIVED:', json);
         this._data = Object.assign(this._data, json);
-        console.log('_DATA MODEL:', this._data)
+        //console.log('_DATA MODEL:', this._data)
         this.trigger('datachange', this.toJSON())
     }
 

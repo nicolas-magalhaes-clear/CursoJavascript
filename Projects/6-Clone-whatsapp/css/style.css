@@ -6699,7 +6699,6 @@ html[dir=ltr] .img-zoomed-in ._12oAB,html[dir=ltr] .img-zoomed-in ._2_FdF,html[d
     display:flex;
     -webkit-flex-direction:column;
     flex-direction:column;
-    justify-content: flex-end;
     overflow-y:scroll;
     position:absolute;
     top:0;
