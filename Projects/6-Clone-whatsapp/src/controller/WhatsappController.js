@@ -63,16 +63,33 @@ export class WhatsappController{
 
                 let me = (data.from === this._user.email);
 
+                if(!me){
+                    doc.ref.set({
+                        status: 'read'
+                    }, 
+                    {merge: true}
+                    )
+
+                }
+                let message = new Message();
+                message.fromJSON(data);
                 if(!this.el.panelMessagesContainer.querySelector('#_' +data.id)){
 
             
-                    let message = new Message();
-                    message.fromJSON(data);
+                    
+                    
                     let view = message.getViewElement(me)
                     this.el.panelMessagesContainer.appendChild(view);
 
                     
                     
+                }
+                else{
+                    let msgEl = this.el.panelMessagesContainer.querySelector('#_' + data.id)
+
+
+                    console.log('WGG:', message.getStatusViewElement().outerHTML)
+                    msgEl.querySelector('.message-status').innerHTML = message.getStatusViewElement().outerHTML;
                 }
                 
             })
@@ -365,6 +382,17 @@ export class WhatsappController{
         //---------------------------
         //LEFT MENU AREA
         //---------------------------
+        this.el.inputSearchContacts.on('keyup', e=>{
+
+            
+            if(this.el.inputSearchContacts.value || this.el.inputSearchContacts.value === '<br>'){
+                this.el.inputSearchContactsPlaceholder.hide();
+            }
+            else{
+                this.el.inputSearchContactsPlaceholder.show()
+            }
+            this._user.getContacts(this.el.inputSearchContacts.value);
+        })
         this.el.myPhoto.on('click', e=>{
 
             this.closeAllLeftPanel();
