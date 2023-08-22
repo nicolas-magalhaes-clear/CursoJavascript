@@ -1,32 +1,47 @@
 import { Firebase } from "../utils/Firebase";
 import { Format } from "../utils/format";
 import { Model } from "./Model";
+import { Base64 } from "../utils/base64";
 
-export class Message extends Model{
+export class Message extends Model {
 
-    constructor(){
+    constructor() {
 
         super()
 
     }
 
-    get content(){ return this._data.content};
-    set content(value){ this._data.content = value}
+    get filename(){return this._data.filename};
+    set filename(value){ this._data.filename = value}
 
-    get type(){ return this._data.type}
-    set type(value) { this._data.type = value}
+    get content() { return this._data.content };
+    set content(value) { this._data.content = value }
 
-    get timeStamp(){ return this._data.timeStamp}
-    set timeStamp(value) { this._data.timeStamp = value}
+    get type() { return this._data.type }
+    set type(value) { this._data.type = value }
 
-    get status(){ return this._data.status}
-    set status(value) { this._data.status = value}
+    get timeStamp() { return this._data.timeStamp }
+    set timeStamp(value) { this._data.timeStamp = value }
 
-    get id(){ return this._data.id}
-    set id(value){this._data.id = value}
+    get status() { return this._data.status }
+    set status(value) { this._data.status = value }
 
+    get id() { return this._data.id }
+    set id(value) { this._data.id = value }
 
-    getViewElement(me = true){  
+    get from() { return this._data.from; }
+    set from(value) { this._data.from = value; }
+
+    get preview(){ return this._data.preview}
+    set preview(value){this._data.preview = value}
+
+    get fileType(){ return this._data.fileType}
+    set fileType(value){ this._data.fileType = value}
+
+    get info(){return this._data.info}
+    set info(value){this._data.info = value}
+
+    getViewElement(me = true) {
 
 
         let div = document.createElement('div');
@@ -35,7 +50,7 @@ export class Message extends Model{
         //console.log('DATA1----:', this._data)
         //console.log('content:::', this.content)
         //console.log('TYPE:', this.type)
-        switch(this.type){
+        switch (this.type) {
 
 
             case 'contact':
@@ -124,13 +139,13 @@ export class Message extends Model{
             </div>
         
                 `
-                div.querySelector('.message-photo').on('load', e=>{
-                    
+                div.querySelector('.message-photo').on('load', e => {
+
                     div.querySelector('.message-photo').show()
-                   div.querySelector('._34Olu').hide();
-                   div.querySelector('._3v3PK').css({
-                    height: 'auto'
-                   })
+                    div.querySelector('._34Olu').hide();
+                    div.querySelector('._3v3PK').css({
+                        height: 'auto'
+                    })
                 })
                 break
             case 'audio':
@@ -221,13 +236,13 @@ export class Message extends Model{
                 <div class="_3_7SH _1ZPgd">
                 <div class="_1fnMt _2CORf">
                     <a class="_1vKRe" href="#">
-                        <div class="_2jTyA" style="background-image: url()"></div>
+                        <div class="_2jTyA" style="background-image: url(${this.preview})"></div>
                         <div class="_12xX7">
                             <div class="_3eW69">
                                 <div class="JdzFp message-file-icon icon-doc-pdf"></div>
                             </div>
                             <div class="nxILt">
-                                <span dir="auto" class="message-filename">Arquivo.pdf</span>
+                                <span dir="auto" class="message-filename">${this.filename}</span>
                             </div>
                             <div class="_17viz">
                                 <span data-icon="audio-download" class="message-file-download">
@@ -245,9 +260,9 @@ export class Message extends Model{
                         </div>
                     </a>
                     <div class="_3cMIj">
-                        <span class="PyPig message-file-info">32 páginas</span>
-                        <span class="PyPig message-file-type">PDF</span>
-                        <span class="PyPig message-file-size">4 MB</span>
+                        <span class="PyPig message-file-info">${this.info}</span>
+                        <span class="PyPig message-file-type">${this.fileType}</span>
+                        <span class="PyPig message-file-size">${this.size}</span>
                     </div>
                     <div class="_3Lj_s">
                         <div class="_1DZAH" role="button">
@@ -257,6 +272,9 @@ export class Message extends Model{
                 </div>
             </div>        
                 `
+                div.on('click', e=>{
+                    window.open(this.content)
+                })
                 break
             default:
                 div.innerHTML = `                    
@@ -278,64 +296,76 @@ export class Message extends Model{
         }
 
         let className = 'message-in'
-        if(me){
+        if (me) {
             className = 'message-out'
 
             div.querySelector('.message-time').parentElement.appendChild(this.getStatusViewElement())
 
-            
+
         }
         div.firstElementChild.classList.add(className);
-        console.log('div:', div)
+        //console.log('div:', div)
         return div
     }
 
 
-    static getRef(chatId){
+    static getRef(chatId) {
         //console.log('chatID-.-.-.-.', chatId)
         return Firebase.db()
-                .collection('/chats')
-                .doc(chatId)
-                .collection('/messages')
+            .collection('chats')
+            .doc(chatId)
+            .collection('messages')
     }
-    static send(chatId, from, type, content){
+    static send(chatId, from, type, content) {
         
 
-        return new Promise((s,f)=>{
+        return new Promise((s, f) => {
+            
+            if (content === undefined){
+                content = '';
+            }
+            Message.getRef(chatId).add(
+                {
+                    content,
+                    timeStamp: new Date(),
+                    status: 'wait',
+                    type,
+                    from
+                }
+                
+            ).then(result => {
+                console.log('getting result:::', result)
 
-            Message.getRef(chatId).add({
-                content,
-                timeStamp: new Date(),
-                status: 'wait',
-                type,
-                from 
-            }).then(result => {
-                console.log('getting result:::' , result)
                 let docRef = result.parent.doc(result.id);
-                s(docRef.set({
+                console.log('docref:', docRef)
+                docRef.set({
                     status: 'sent'
-                },{
-                    merge:true
-                }))
+                    },
+                    {
+                    merge: true
+                })
+                s(docRef);
+                console.log('Okkk', docRef)
 
 
-            }).catch(err =>{
+            }).catch(err => {
+                f(err);
                 console.error(err)
             })
 
         })
 
-        
+
     }
-    getStatusViewElement(){
+    getStatusViewElement() {
 
         let div = document.createElement('div');
 
         div.className = 'message-status';
-        console.log('thisstatus ===' ,this.status)
-        
-    
-        switch(this.status){
+        //console.log('thisstatus ===', this.status)
+
+
+        switch (this.status) {
 
             case 'wait':
                 div.innerHTML = `
@@ -344,9 +374,9 @@ export class Message extends Model{
                         <path fill="#859479" d="M9.75 7.713H8.244V5.359a.5.5 0 0 0-.5-.5H7.65a.5.5 0 0 0-.5.5v2.947a.5.5 0 0 0 .5.5h.094l.003-.001.003.002h2a.5.5 0 0 0 .5-.5v-.094a.5.5 0 0 0-.5-.5zm0-5.263h-3.5c-1.82 0-3.3 1.48-3.3 3.3v3.5c0 1.82 1.48 3.3 3.3 3.3h3.5c1.82 0 3.3-1.48 3.3-3.3v-3.5c0-1.82-1.48-3.3-3.3-3.3zm2 6.8a2 2 0 0 1-2 2h-3.5a2 2 0 0 1-2-2v-3.5a2 2 0 0 1 2-2h3.5a2 2 0 0 1 2 2v3.5z"></path>
                     </svg>
                 </span>
-                `    
+                `
                 break;
-            
+
             case 'sent':
                 div.innerHTML = `
                 <span data-icon="msg-check">
@@ -379,41 +409,100 @@ export class Message extends Model{
                 break
 
         }
-        console.log('div. getview', div)
-        console.log('div innerhtml:', div.innerHTML)    
+        
         return div;
 
     }
 
-    static sendImage(chatId , from, file){
-        
-        return new Promise((s,f)=>{
+    static upload(file, from) {
 
-            let uploadTask = Firebase.hd().ref(from).child(Date.now() + "_"+file.name).put(file);
+        return new Promise((s, f) => {
 
-        uploadTask.on('state_change', (e)=>{
 
-            console.info('upload', e)
+            let uploadTask = Firebase.hd().ref(from).child(Date.now() + "_" + file.name).put(file);
 
-        }, err=>{
-            console.error(err)
-        },()=>{
-            uploadTask.snapshot.ref.getDownloadURL().then(downloadURL =>{
-            
-                Message.send(chatId, from, 'image', downloadURL).then( ()=>{
-                s()
-            }).catch(err =>{
-                console.error('Ocorreu um erro:', err)
-            })
+            uploadTask.on('state_changed', (e) => {
+
+                console.info('upload', e)
+
+            }, err => {
+                f(err)
+            }, () => {
                 
+                s(uploadTask.snapshot);
+
             })
-            
         })
 
 
+    }
+    static sendDocument(chatId, from, file, filePreview) {
+        console.log('1 - Chegou na funcao sendDocument')
+        console.log('chatid', chatId)
+        console.log('from', from)
+        console.log('file:', file);
+        console.log('filePreview', filePreview);
+        Message.send(chatId, from, 'document').then(msgRef => {
+            console.log('MSGREF:::', msgRef)
+
+
+            Message.upload(file, from).then(snapshot => {
+                console.log('2 - snapshot chegou', snapshot)
+                snapshot.ref.getDownloadURL().then(downloadURL => {
+
+                    console.log('3- Conseguiu URL de download:', downloadURL)
+                    let downloadFile = downloadURL
+
+                    Message.upload(filePreview, from).then(snapshot2 => {
+                        console.log('4 - Chegou em messageupload(filepreview)')
+                        console.log('4.1- snapshot2 ->', snapshot2);
+                        snapshot2.ref.getDownloadURL().then(downloadURL2 => {
+                            
+                            let downloadPreview = downloadURL2
+                            console.log('5- Downloadpreview:', downloadPreview)                            
+                            msgRef.set({
+                                content: downloadFile,
+                                preview: downloadPreview,
+                                filename: file.name,
+                                size: file.size,
+                                fileType: file.type,
+                                status: 'sent'
+                            }, { merge: true })
+                        })
+                    })
+                })
+            })
+
+
+
         })
 
-        
+
+
+    }
+    static sendImage(chatId, from, file) {
+
+        return new Promise((s, f) => {
+
+            Message.upload(file).then((snapshot) => {
+                snapshot.ref.getDownloadURL().then(downloadURL => {
+                    Message.send(
+                        chatId,
+                        from,
+                        'image',
+                        downloadURL)
+                        .then(() => {
+                            s()
+                        }).catch(err => {
+                            console.error('Ocorreu um erro:', err)
+                        })
+                })
+            })
+
+
+        })
+
+
 
     }
 }

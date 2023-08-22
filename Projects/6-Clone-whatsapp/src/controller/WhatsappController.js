@@ -7,6 +7,7 @@ import { Firebase } from '../utils/Firebase';
 import { User } from '../model/User';
 import { Chat } from '../model/Chat';
 import { Message } from '../model/Message';
+import { Base64 } from '../utils/base64';
 
 
 export class WhatsappController{
@@ -27,88 +28,48 @@ export class WhatsappController{
     }
 
     setActiveChat(contact){
-
         if(this._contactActive){
-            Message.getRef(this._contactActive.idChat).orderBy('timeStamp').onSnapshot(()=>{})
+            Message.getRef(this._contactActive.chatOd).onSnapshot(()=>{})
         }
         this._contactActive = contact
         this.el.activeName.innerHTML = contact.name;
-        this.el.activeStatus.innerHTML = contact.activeStatus
-
+        this.el.activeStatus.innerHTML = contact.status;
         if(contact.photo){
-            let img = this.el.activePhoto;
+            let img =this.el.activePhoto;
             img.src = contact.photo;
-            img.show()
+            img.show();
         }
-
         this.el.home.hide();
         this.el.main.css({
-            display: 'flex'
+            display:'flex'
         })
-        
-        Message.getRef(this._contactActive.chatId).orderBy('timeStamp').onSnapshot(docs =>{
-            this.el.panelMessagesContainer.innerHTML = "";
-            console.log('first render');
-            let autoScroll = true;
-            let scrollTop;
-            let scrollTopMax;   
+        Message.getRef(this._contactActive.chatId).orderBy('timeStamp').onSnapshot(docs => {
+            this.el.panelMessagesContainer.innerHTML = '';
             docs.forEach(doc=>{
-            
-                
-
                 let data = doc.data();
-                data.id = doc.id; 
-                
-                
-
-                let me = (data.from === this._user.email);
-
-                if(!me){
-                    doc.ref.set({
-                        status: 'read'
-                    }, 
-                    {merge: true}
-                    )
-
-                }
-                let message = new Message();
-                message.fromJSON(data);
-                if(!this.el.panelMessagesContainer.querySelector('#_' +data.id)){
-
-            
-                    
-                    
+                data.id = doc.id;
+                let scrollTop = this.el.panelMessagesContainer.scrollTop
+                    let scrollTopMax = (this.el.panelMessagesContainer.scrollHeight - this.el.panelMessagesContainer.offsetHeight)
+                    let autoScroll = (scrollTop >= scrollTopMax)
+                    let message = new Message();
+                    message.fromJSON(data);
+                    let me = (data.from === this._user.email)
+                if(!this.el.panelMessagesContainer.querySelector('#_'+ data.id)){
+                    if(!me){
+                        doc.ref.set({
+                            status:'read'
+                        }, {merge: true})
+                    }
                     let view = message.getViewElement(me)
-                    this.el.panelMessagesContainer.appendChild(view);
-
-                    
-                    
+                    this.el.panelMessagesContainer.appendChild(view)
+                    if(autoScroll){
+                        this.el.panelMessagesContainer.scrollTop = (this.el.panelMessagesContainer.scrollHeight - this.el.panelMessagesContainer.offsetHeight)
+                    }
+                } else if(me) {
+                    let msgEl = this.el.panelMessagesContainer.querySelector('#_'+ data.id)
+                    msgEl.querySelector('.message-status').innerHTML = message.getStatusViewElement().outerHTML
                 }
-                else{
-                    let msgEl = this.el.panelMessagesContainer.querySelector('#_' + data.id)
-
-
-                    console.log('WGG:', message.getStatusViewElement().outerHTML)
-                    msgEl.querySelector('.message-status').innerHTML = message.getStatusViewElement().outerHTML;
-                }
-                
             })
-
-            
-            
-            scrollTop = this.el.panelMessagesContainer.scrollTop;
-            //console.log('scrolltop value now:', scrollTop)
-            scrollTopMax = this.el.panelMessagesContainer.scrollHeight - this.el.panelMessagesContainer.offsetHeight;
-            //console.log('scrolltopMax value now:', scrollTopMax)
-            autoScroll = ((scrollTop + 45)>= (scrollTopMax - 1));
-            //console.log('autoscroll status:', autoScroll)
-            if(autoScroll){
-                this.el.panelMessagesContainer.scrollTop = (this.el.panelMessagesContainer.scrollHeight - this.el.panelMessagesContainer.offsetHeight)
-            }
-            else{
-                this.el.panelMessagesContainer.scrollTop = scrollTop
-            }
-
         })
     }
 
@@ -525,6 +486,7 @@ export class WhatsappController{
             this.closeAllMainPanel();
             this.el.panelMessagesContainer.show();
             this._camera.stop();
+            
         })
         this.el.btnTakePicture.on('click', e=>{
             let dataUrl = this._camera.takePicture();
@@ -548,8 +510,39 @@ export class WhatsappController{
 
         })
         this.el.btnSendPicture.on('click', e=>{
-            //console.log(this.el.pictureCamera.src)
+            
+            this.el.btnSendPicture.disabled = true;
+            
+            
+            
+            let picture = new Image();
+            picture.src = this.el.pictureCamera.src;
+            picture.onload = e =>{
+                let canvas = document.createElement('canvas');
+                let context = canvas.getContext('2d');
 
+                canvas.width = picture.width;
+                canvas.height = picture.height;
+
+                context.translate(picture.width, 0);
+                context.scale(-1, 1)
+
+                context.drawImage(picture, 0, 0, canvas.width, canvas.height)
+
+                fetch(canvas.toDataURL(mimeType)).then(res =>{
+                    return res.arrayBuffer()
+                    .then(buffer =>{ return new File([buffer], filename, {type: mimeType}); })
+                    .then(file =>{
+                        Message.sendImage(this._contactActive.chatId, this._user.email, file);
+                        this.el.btnSendPicture.disabled = false;
+                    })
+                })
+
+            }
+            this.el.btnClosePanelCamera.click();
+
+
+        
 
         })
             //end attach camera area
@@ -618,7 +611,39 @@ export class WhatsappController{
             this.closeAllMainPanel();
         })
         this.el.btnSendDocument.on('click', e=>{
-            //console.log('send document');
+            
+
+            let file = this.el.inputDocument.files[0];
+            let base64 = this.el.imgPanelDocumentPreview.src
+
+            if(file.type === 'application/pdf'){
+                Base64.toFile(base64).then(filePreview => {
+                    console.log('FILE PREVIEW:', filePreview)
+                    Message.sendDocument(
+                        this._contactActive.chatId,
+                        this._user.email,
+                        file,
+                        filePreview,
+                        this.el.infoPanelDocumentPreview.innerHTML)
+
+                })
+                
+            }
+            else{
+                
+
+                let filePreview = file;
+                Message.sendDocument(
+                    this._contactActive.chatId,
+                    this._user.email,
+                    file,
+                    filePreview
+                    )
+
+            }
+            
+            
+            
         })
             //end document attach area
 
