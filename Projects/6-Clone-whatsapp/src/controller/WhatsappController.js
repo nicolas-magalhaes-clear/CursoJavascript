@@ -1,6 +1,6 @@
-import {Format} from './../utils/format'
+import { Format } from './../utils/format'
 
-import {CameraController} from './CameraController';
+import { CameraController } from './CameraController';
 import { DocumentPreviewController } from './DocumentPreviewController';
 import { MicrophoneController } from './MicrophoneController';
 import { Firebase } from '../utils/Firebase';
@@ -11,96 +11,126 @@ import { Base64 } from '../utils/base64';
 import { ContactsController } from './ContactsController';
 
 
-export class WhatsappController{
+export class WhatsappController {
 
 
-    constructor(){
+    constructor() {
 
         this._firebase = new Firebase();
-        
+
 
         this.loadElements();
         this.elementsPrototype()
         this.initAuth();
         this.initEvents()
 
-        
-        
+
+
     }
 
-    setActiveChat(contact){
-        if(this._contactActive){
-            Message.getRef(this._contactActive.chatOd).onSnapshot(()=>{})
+    setActiveChat(contact) {
+        if (this._contactActive) {
+            Message.getRef(this._contactActive.chatOd).onSnapshot(() => { })
         }
         this._contactActive = contact
         this.el.activeName.innerHTML = contact.name;
         this.el.activeStatus.innerHTML = contact.status;
-        if(contact.photo){
-            let img =this.el.activePhoto;
+        if (contact.photo) {
+            let img = this.el.activePhoto;
             img.src = contact.photo;
             img.show();
         }
         this.el.home.hide();
         this.el.main.css({
-            display:'flex'
+            display: 'flex'
         })
         Message.getRef(this._contactActive.chatId).orderBy('timeStamp').onSnapshot(docs => {
             this.el.panelMessagesContainer.innerHTML = '';
-            docs.forEach(doc=>{
+            docs.forEach(doc => {
                 let data = doc.data();
                 data.id = doc.id;
                 let scrollTop = this.el.panelMessagesContainer.scrollTop
-                    let scrollTopMax = (this.el.panelMessagesContainer.scrollHeight - this.el.panelMessagesContainer.offsetHeight)
-                    let autoScroll = (scrollTop >= scrollTopMax)
-                    
-                    let message = new Message();
-                    message.fromJSON(data);
-                    let me = (data.from === this._user.email)
-                if(!this.el.panelMessagesContainer.querySelector('#_'+ data.id)){
-                    if(!me){
+                let scrollTopMax = (this.el.panelMessagesContainer.scrollHeight - this.el.panelMessagesContainer.offsetHeight)
+                let autoScroll = (scrollTop >= scrollTopMax)
+
+                let message = new Message();
+                message.fromJSON(data);
+                
+                let me = (data.from === this._user.email)
+                let view = message.getViewElement(me)
+                if (!this.el.panelMessagesContainer.querySelector('#_' + data.id)) {
+                    if (!me) {
                         doc.ref.set({
-                            status:'read'
-                        }, {merge: true})
+                            status: 'read'
+                        }, { merge: true })
                     }
-                    let view = message.getViewElement(me)
+
                     this.el.panelMessagesContainer.appendChild(view);
-                    
-                    if(autoScroll){
+
+                    if (autoScroll) {
                         this.el.panelMessagesContainer.scrollTop = (this.el.panelMessagesContainer.scrollHeight - this.el.panelMessagesContainer.offsetHeight)
                     }
-                } else{
+                } else {
 
-                    let view = message.getViewElement(me)
-                    this.el.panelMessagesContainer.querySelector('#_' + data.id).innerHTML = view.innerHTML
-                } 
-                
-                
-                if(this.el.panelMessagesContainer.querySelector('#_' + data.id) && me) {
-                    let msgEl = this.el.panelMessagesContainer.querySelector('#_'+ data.id)
+
+
+                    let parent = this.el.panelMessagesContainer.querySelector('#_' + data.id).parentNode
+
+                    parent.replaceChild(view, this.el.panelMessagesContainer.querySelector('#_' + data.id))
+
+                }
+
+
+                if (this.el.panelMessagesContainer.querySelector('#_' + data.id) && me) {
+                    let msgEl = this.el.panelMessagesContainer.querySelector('#_' + data.id)
                     msgEl.querySelector('.message-status').innerHTML = message.getStatusViewElement().outerHTML
+                }
+
+                if (message.type === 'contact') {
+
+                    view.querySelector('.btn-message-send').on('click', e => {
+
+                        Chat.createIfNotExists(this._user.email, message.content.email).then((chat) => {
+
+                            let contact = new User(message.content.email);
+
+                            contact.on('datachange', e => {
+                                contact.chatId = chat.id;
+
+                                this._user.addContact(contact)
+
+                                this._user.chatId = chat.id
+
+                                contact.addContact(this._user);
+
+                                this.setActiveChat(contact)
+                            })
+
+                        })
+                    })
                 }
             })
         })
     }
 
-    initContacts(){
-        
-            
+    initContacts() {
 
 
-            this._user.on('contactschange', docs=>{
 
-                this.el.contactsMessagesList.innerHTML = '';
-                //console.log('DOCSSSS OK:::', docs)
-                docs.forEach(doc => {
 
-                    //console.log('FOREACHCH')
-                    let div = document.createElement('div');
+        this._user.on('contactschange', docs => {
 
-                    let contact = doc.data();
+            this.el.contactsMessagesList.innerHTML = '';
+            //console.log('DOCSSSS OK:::', docs)
+            docs.forEach(doc => {
 
-                    div.classList.add('contact-item')
-                    div.innerHTML = `
+                //console.log('FOREACHCH')
+                let div = document.createElement('div');
+
+                let contact = doc.data();
+
+                div.classList.add('contact-item')
+                div.innerHTML = `
                                                 <div class="dIyEr">
                                                     <div class="_1WliW" style="height: 49px; width: 49px;">
                                                         <img src="#" class="Qgzj8 gqwaM photo" style="display:none;">
@@ -151,40 +181,40 @@ export class WhatsappController{
                                             
                     `;
 
-                    if(contact.photo){
-                        let img = div.querySelector('.photo');
-                        img.src = contact.photo;
-                        img.show()
-                    }
-                    
-                    div.on('click', e=>{
-                        //console.log('setting active chat')
-                        this.setActiveChat(contact)
-                        
-                    })
-                    
+                if (contact.photo) {
+                    let img = div.querySelector('.photo');
+                    img.src = contact.photo;
+                    img.show()
+                }
 
-                    this.el.contactsMessagesList.appendChild(div);
+                div.on('click', e => {
+                    //console.log('setting active chat')
+                    this.setActiveChat(contact)
+
                 })
+
+
+                this.el.contactsMessagesList.appendChild(div);
             })
-            this._user.getContacts();
-        
+        })
+        this._user.getContacts();
+
     }
 
-    initAuth(){
-        
+    initAuth() {
+
         this._firebase.initAuth().then((response) => {
-           
+
             this._user = new User(response.user.email);
 
-            this._user.on('datachange', data =>{
+            this._user.on('datachange', data => {
 
-               // console.log('DATAAAAAAAA:::', data)
+                // console.log('DATAAAAAAAA:::', data)
                 document.querySelector('title').innerHTML = data.name + ' - Whatsapp Clone'
-                
+
                 this.el.inputNamePanelEditProfile.innerHTML = data.name
 
-                if(data.photo){
+                if (data.photo) {
                     let photo = this.el.imgPanelEditProfile;
                     photo.src = data.photo;
                     photo.show();
@@ -202,21 +232,21 @@ export class WhatsappController{
             this._user.email = response.user.email;
             this._user.photo = response.user.photoURL;
 
-            this._user.save().then(()=>{
+            this._user.save().then(() => {
                 this.el.appContent.css({
                     display: 'flex'
                 });
-            }).catch(error =>{
+            }).catch(error => {
                 console.error(error);
             })
-            
 
-            
-            
 
-            
 
-        }).catch(err=>{
+
+
+
+
+        }).catch(err => {
             console.error(err);
         })
     }
@@ -226,63 +256,63 @@ export class WhatsappController{
     PROTOTYPES DECLARATIONS AREA
     --------------------------
     */
-    elementsPrototype(){
-       Element.prototype.hide = function(){
+    elementsPrototype() {
+        Element.prototype.hide = function () {
             this.style.display = 'none'
             return this;
         }
 
-       Element.prototype.show = function(){
-        this.style.display = 'block'
-        return this;
-       }
-
-       Element.prototype.toggle = function(){
-        this.style.display = (this.style.display === 'none') ? 'block' : 'none';
-        return this;
-       }
-
-       Element.prototype.on = function(events, fn){
-        events.split(' ').forEach(event => {
-
-            this.addEventListener(event, fn);
-        });
-        return this;
-       }
-       Element.prototype.addClass = function(name){
-        this.classList.add(name);
-        return this
-       }
-       Element.prototype.removeClass = function(name){
-        this.classList.remove(name)
-        return this
-       }
-       Element.prototype.toggleClass = function(name){
-        this.classList.toggle(name);
-        return this
-       }
-       Element.prototype.hasClass = function (name){
-        return this.classList.contains(name)
-       }
-
-       Element.prototype.css = function(styles){
-
-        for(let name in styles){
-            this.style[name] = styles[name]
+        Element.prototype.show = function () {
+            this.style.display = 'block'
+            return this;
         }
-        return this;
-       }
-       HTMLFormElement.prototype.getForm = function(){
-        return new FormData(this);
-       }
-       HTMLFormElement.prototype.toJSON = function(){
+
+        Element.prototype.toggle = function () {
+            this.style.display = (this.style.display === 'none') ? 'block' : 'none';
+            return this;
+        }
+
+        Element.prototype.on = function (events, fn) {
+            events.split(' ').forEach(event => {
+
+                this.addEventListener(event, fn);
+            });
+            return this;
+        }
+        Element.prototype.addClass = function (name) {
+            this.classList.add(name);
+            return this
+        }
+        Element.prototype.removeClass = function (name) {
+            this.classList.remove(name)
+            return this
+        }
+        Element.prototype.toggleClass = function (name) {
+            this.classList.toggle(name);
+            return this
+        }
+        Element.prototype.hasClass = function (name) {
+            return this.classList.contains(name)
+        }
+
+        Element.prototype.css = function (styles) {
+
+            for (let name in styles) {
+                this.style[name] = styles[name]
+            }
+            return this;
+        }
+        HTMLFormElement.prototype.getForm = function () {
+            return new FormData(this);
+        }
+        HTMLFormElement.prototype.toJSON = function () {
             let json = {}
 
-            this.getForm().forEach((value,key) => {
+            this.getForm().forEach((value, key) => {
                 json[key] = value
             })
             return json
-       }
+        }
     }//end method elementsPrototype
 
     /*
@@ -297,19 +327,19 @@ export class WhatsappController{
     PANEL CONTROL METHODS AREA
     --------------------------
     */
-    closeAllMainPanel(){
+    closeAllMainPanel() {
         this.el.panelMessagesContainer.hide();
         this.el.panelDocumentPreview.removeClass('open');
         this.el.panelCamera.removeClass('open')
     }//end method closeAllMainPanel
-    closeMenuAttach(e){
+    closeMenuAttach(e) {
 
         document.removeEventListener('click', this.closeMenuAttach);
         this.el.menuAttach.removeClass('open');
-        
+
 
     }//end method closeMenuAttach
-    closeAllLeftPanel(){
+    closeAllLeftPanel() {
 
         this.el.panelAddContact.hide();
         this.el.panelEditProfile.hide();
@@ -328,12 +358,12 @@ export class WhatsappController{
     --------------------------------
     */
 
-    closeRecordMicrophone(){
+    closeRecordMicrophone() {
         this.el.recordMicrophone.hide();
         this.el.btnSendMicrophone.show();
-        
+
     }
-    
+
 
     /*
     --------------------------------
@@ -343,91 +373,91 @@ export class WhatsappController{
 
 
 
-    loadElements(){
+    loadElements() {
 
         this.el = {};
 
         document.querySelectorAll('[id]').forEach(element => {
-            
+
             this.el[Format.getCamelCase(element.id)] = element;
-            
+
 
         })
-        
+
     }//End METHOD loadElements
 
-    initEvents(){
+    initEvents() {
         //---------------------------
         //LEFT MENU AREA
         //---------------------------
-        this.el.inputSearchContacts.on('keyup', e=>{
+        this.el.inputSearchContacts.on('keyup', e => {
 
-            
-            if(this.el.inputSearchContacts.value || this.el.inputSearchContacts.value === '<br>'){
+
+            if (this.el.inputSearchContacts.value || this.el.inputSearchContacts.value === '<br>') {
                 this.el.inputSearchContactsPlaceholder.hide();
             }
-            else{
+            else {
                 this.el.inputSearchContactsPlaceholder.show()
             }
             this._user.getContacts(this.el.inputSearchContacts.value);
         })
-        this.el.myPhoto.on('click', e=>{
+        this.el.myPhoto.on('click', e => {
 
             this.closeAllLeftPanel();
             this.el.panelEditProfile.show();
             setTimeout(() => {
-                this.el.panelEditProfile.addClass('open');    
+                this.el.panelEditProfile.addClass('open');
             }, 300);
-            
-            
+
+
         })
-        this.el.btnNewContact.on('click', e=>{
-            
+        this.el.btnNewContact.on('click', e => {
+
             this.closeAllLeftPanel();
             this.el.panelAddContact.show()
             setTimeout(() => {
-                this.el.panelAddContact.addClass('open')    
+                this.el.panelAddContact.addClass('open')
             }, 300);
-            
+
 
         })
-        this.el.btnClosePanelEditProfile.on('click', e=>{
+        this.el.btnClosePanelEditProfile.on('click', e => {
             this.el.panelEditProfile.removeClass('open')
         });
-        this.el.btnClosePanelAddContact.on('click', e=>{
+        this.el.btnClosePanelAddContact.on('click', e => {
             this.el.panelAddContact.removeClass('open')
         })
-        this.el.photoContainerEditProfile.on('click', e=>{
+        this.el.photoContainerEditProfile.on('click', e => {
             this.el.inputProfilePhoto.click()
         })
-        this.el.inputNamePanelEditProfile.on('keypress', e=>{
-            if(e.key === 'Enter'){
+        this.el.inputNamePanelEditProfile.on('keypress', e => {
+            if (e.key === 'Enter') {
                 e.preventDefault();
                 this.el.btnSavePanelEditProfile.click();
             }
         })
-        this.el.btnSavePanelEditProfile.on('click', e=>{
+        this.el.btnSavePanelEditProfile.on('click', e => {
 
             this.el.btnSavePanelEditProfile.disabled = true;
 
             this._user.name = this.el.inputNamePanelEditProfile.innerHTML;
 
-            this._user.save().then(()=>{
+            this._user.save().then(() => {
                 this.el.btnSavePanelEditProfile.disabled = false;
             })
-            
+
         })
-        this.el.formPanelAddContact.on('submit', e=>{
+        this.el.formPanelAddContact.on('submit', e => {
             e.preventDefault();
 
             let formData = new FormData(this.el.formPanelAddContact)
 
             let contact = new User(formData.get('email'));
 
-            contact.on('datachange', data=>{
-                if(data.name){
+            contact.on('datachange', data => {
+                if (data.name) {
 
-                    Chat.createIfNotExists(this._user.email, contact.email).then((chat)=>{
+                    Chat.createIfNotExists(this._user.email, contact.email).then((chat) => {
 
                         contact.chatId = chat.id;
 
@@ -435,23 +465,23 @@ export class WhatsappController{
 
                         contact.addContact(this._user);
 
-                        this._user.addContact(contact).then(()=>{
+                        this._user.addContact(contact).then(() => {
                             this.el.btnClosePanelAddContact.click();
                             console.info('Contato foi adicionado');
-    
+
                         });
                     })
 
-                    
+
                 }
-                else{
+                else {
                     console.error('Usuário não foi encontrado');
                 }
             })
 
         })
-        this.el.contactsMessagesList.querySelectorAll('.contact-item').forEach(item=>{
-            item.on('click', e=>{
+        this.el.contactsMessagesList.querySelectorAll('.contact-item').forEach(item => {
+            item.on('click', e => {
                 this.el.home.hide();
                 this.el.main.css({
                     display: 'flex'
@@ -465,47 +495,47 @@ export class WhatsappController{
         //------------------------------
         //ATTACH ITEMS AREA
         //------------------------------
-        this.el.btnAttach.on('click', e=>{
+        this.el.btnAttach.on('click', e => {
             e.stopPropagation();
             this.el.menuAttach.addClass('open');
 
             document.addEventListener('click', this.closeMenuAttach.bind(this))
         })
-            //photo attach area
-        this.el.btnAttachPhoto.on('click', e=>{
+        //photo attach area
+        this.el.btnAttachPhoto.on('click', e => {
             this.el.inputPhoto.click();
         })
-        this.el.inputPhoto.on('change', e=>{
+        this.el.inputPhoto.on('change', e => {
             //console.log(this.el.inputPhoto.files);
 
             [...this.el.inputPhoto.files].forEach(file => {
-                
+
                 Message.sendImage(this._contactActive.chatId, this._user.email, file);
-                
+
             })
         })
-            //end photo attach area
+        //end photo attach area
 
-            //attach camera area
-        this.el.btnAttachCamera.on('click', e=>{
-        
+        //attach camera area
+        this.el.btnAttachCamera.on('click', e => {
+
             this.closeAllMainPanel();
             this.el.panelMessagesContainer.hide()
             this.el.panelCamera.addClass('open');
             this.el.panelCamera.css({
-                'height':'calc(100%)'
+                'height': 'calc(100%)'
             })
             this._camera = new CameraController(this.el.videoCamera);
         })
 
-        this.el.btnClosePanelCamera.on('click', e=>{
+        this.el.btnClosePanelCamera.on('click', e => {
 
             this.closeAllMainPanel();
             this.el.panelMessagesContainer.show();
             this._camera.stop();
-            
+
         })
-        this.el.btnTakePicture.on('click', e=>{
+        this.el.btnTakePicture.on('click', e => {
             let dataUrl = this._camera.takePicture();
             this.el.pictureCamera.src = dataUrl;
             this.el.pictureCamera.show();
@@ -517,7 +547,7 @@ export class WhatsappController{
 
         })
 
-        this.el.btnReshootPanelCamera.on('click', e=>{
+        this.el.btnReshootPanelCamera.on('click', e => {
 
             this.el.pictureCamera.hide();
             this.el.videoCamera.show();
@@ -526,15 +556,15 @@ export class WhatsappController{
             this.el.containerSendPicture.hide();
 
         })
-        this.el.btnSendPicture.on('click', e=>{
-            
+        this.el.btnSendPicture.on('click', e => {
+
             this.el.btnSendPicture.disabled = true;
-            
-            
-            
+
+
+
             let picture = new Image();
             picture.src = this.el.pictureCamera.src;
-            picture.onload = e =>{
+            picture.onload = e => {
                 let canvas = document.createElement('canvas');
                 let context = canvas.getContext('2d');
 
@@ -546,38 +576,38 @@ export class WhatsappController{
 
                 context.drawImage(picture, 0, 0, canvas.width, canvas.height)
 
-                fetch(canvas.toDataURL(mimeType)).then(res =>{
+                fetch(canvas.toDataURL(mimeType)).then(res => {
                     return res.arrayBuffer()
-                    .then(buffer =>{ return new File([buffer], filename, {type: mimeType}); })
-                    .then(file =>{
-                        Message.sendImage(this._contactActive.chatId, this._user.email, file);
-                        this.el.btnSendPicture.disabled = false;
-                    })
+                        .then(buffer => { return new File([buffer], filename, { type: mimeType }); })
+                        .then(file => {
+                            Message.sendImage(this._contactActive.chatId, this._user.email, file);
+                            this.el.btnSendPicture.disabled = false;
+                        })
                 })
 
             }
             this.el.btnClosePanelCamera.click();
 
 
-        
+
 
         })
-            //end attach camera area
-        
-            //attach document area
-        this.el.btnAttachDocument.on('click', e=>{
-            
+        //end attach camera area
+
+        //attach document area
+        this.el.btnAttachDocument.on('click', e => {
+
             this.closeAllMainPanel();
             this.el.panelDocumentPreview.addClass('open');
             this.el.panelDocumentPreview.css({
                 'height': 'calc(100%)'
             })
             this.el.inputDocument.click();
-            
+
         })
-        this.el.inputDocument.on('change', e=>{
+        this.el.inputDocument.on('change', e => {
             //console.log('changed')
-            if(this.el.inputDocument.files.length){
+            if (this.el.inputDocument.files.length) {
                 let file = this.el.inputDocument.files[0];
 
                 this._documentPreviewController = new DocumentPreviewController(file);
@@ -590,9 +620,9 @@ export class WhatsappController{
                     this.el.filePanelDocumentPreview.hide();
 
 
-                }).catch(err =>{
-                    
-                    switch(file.type){
+                }).catch(err => {
+
+                    switch (file.type) {
 
                         case 'application/vnd.ms-excel':
                         case 'application/vnd.openxmlformats-officedocument.spreasheetml.sheet':
@@ -603,7 +633,7 @@ export class WhatsappController{
                         case 'application/vnd.openxmlformats-officedocument.presentationml.presentation':
                             this.el.iconPanelDocumentPreview.className = 'jcxhw icon-doc-ppt'
                             break;
-                        
+
                         case 'application/msword':
                         case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
                             this.el.iconPanelDocumentPreview.className = 'jcxhw icon-doc-doc'
@@ -619,21 +649,21 @@ export class WhatsappController{
                     this.el.filePanelDocumentPreview.show()
 
                 })
-                
+
             }
-            
+
 
         })
-        this.el.btnClosePanelDocumentPreview.on('click', e=>{
+        this.el.btnClosePanelDocumentPreview.on('click', e => {
             this.closeAllMainPanel();
         })
-        this.el.btnSendDocument.on('click', e=>{
-            
+        this.el.btnSendDocument.on('click', e => {
+
 
             let file = this.el.inputDocument.files[0];
             let base64 = this.el.imgPanelDocumentPreview.src
 
-            if(file.type === 'application/pdf'){
+            if (file.type === 'application/pdf') {
                 Base64.toFile(base64).then(filePreview => {
                     console.log('FILE PREVIEW:', filePreview)
                     Message.sendDocument(
@@ -644,29 +674,29 @@ export class WhatsappController{
                         this.el.infoPanelDocumentPreview.innerHTML)
 
                 })
-                
-            }
-            else{
-                
 
-            
+            }
+            else {
+
+
+
                 Message.sendDocument(
                     this._contactActive.chatId,
                     this._user.email,
                     file
-                    )
+                )
 
             }
-            
+
             this.el.btnClosePanelDocumentPreview.click()
             this.el.panelMessagesContainer.show();
-            
-        })
-            //end document attach area
 
-            //contacts attach area
-        this.el.btnAttachContact.on('click', e=>{
-            
+        })
+        //end document attach area
+
+        //contacts attach area
+        this.el.btnAttachContact.on('click', e => {
+
 
             this._contactsController = new ContactsController(this.el.modalContacts, this._user);
 
@@ -678,13 +708,13 @@ export class WhatsappController{
             })
             this._contactsController.open()
         })
-        this.el.btnCloseModalContacts.on('click', e=>{
+        this.el.btnCloseModalContacts.on('click', e => {
 
 
             this._contactsController.close();
 
         })
-            //end contacts attach area
+        //end contacts attach area
 
         //------------------------------
         //END ATTACH ITEMS AREA
@@ -693,93 +723,104 @@ export class WhatsappController{
         //------------------------------
         //USER INPUTS (MESSAGE, EMOJI, MICROPHONE) AREA
         //------------------------------
-        
-            //microphone events
-        this.el.btnSendMicrophone.on('click', e=>{
+
+        //microphone events
+        this.el.btnSendMicrophone.on('click', e => {
             this.el.recordMicrophone.show();
             this.el.btnSendMicrophone.hide();
-            
+
 
             this._microphoneController = new MicrophoneController();
 
             this._microphoneController.on('ready', (audio) => {
 
                 this._microphoneController.startRecorder()
-                
-                
+
+
             });
 
-            this._microphoneController.on('recordtimer', timer =>{
+            this._microphoneController.on('recordtimer', timer => {
                 this.el.recordMicrophoneTimer.innerHTML = Format.toTime(timer)
             })
 
-            
+
         })
 
 
 
-        this.el.btnCancelMicrophone.on('click', e=>{
-           this._microphoneController.stopRecorder();
-            this.closeRecordMicrophone();
-        })
-
-        this.el.btnFinishMicrophone.on('click', e=>{
+        this.el.btnCancelMicrophone.on('click', e => {
             this._microphoneController.stopRecorder();
             this.closeRecordMicrophone();
         })
-            //end microphone events
 
-            //message inputs text
-        this.el.inputText.on('keyup', e=>{
-            if(this.el.inputText.innerHTML && this.el.inputText.innerHTML != '<br>'){
-                
+        this.el.btnFinishMicrophone.on('click', e => {
+            console.log('OKkkkkkkkkkkkkkkkkkkkkk')
+            this._microphoneController.on('recorded', (file, metadata) =>{
+                Message.sendAudio(
+                    this._contactActive.chatId,
+                    this._user.email,
+                    file,
+                    metadata,
+                    this._user.photo
+                )
+            })
+
+            this._microphoneController.stopRecorder();
+            this.closeRecordMicrophone();
+        })
+        //end microphone events
+
+        //message inputs text
+        this.el.inputText.on('keyup', e => {
+            if (this.el.inputText.innerHTML && this.el.inputText.innerHTML != '<br>') {
+
                 this.el.inputPlaceholder.hide()
                 this.el.btnSendMicrophone.hide()
                 this.el.btnSend.show();
 
             }
-            else{
+            else {
 
                 this.el.inputPlaceholder.show()
                 this.el.btnSendMicrophone.show();
                 this.el.btnSend.hide();
-                
+
             }
         });
-        this.el.inputText.on('keypress', e=>{
+        this.el.inputText.on('keypress', e => {
 
-            if(e.key === 'Enter' && !e.crtlKey){
+            if (e.key === 'Enter' && !e.crtlKey) {
 
                 e.preventDefault();
                 this.el.btnSend.click()
             }
 
         })
-            //end message inputs text
+        //end message inputs text
 
-            //send message button
-        this.el.btnSend.on('click', e=>{
+        //send message button
+        this.el.btnSend.on('click', e => {
 
             Message.send(this._contactActive.chatId,
-                        this._user.email,
-                        'text',
-                        this.el.inputText.innerHTML);
+                this._user.email,
+                'text',
+                this.el.inputText.innerHTML);
 
             this.el.inputText.innerHTML = '';
 
             this.el.panelEmojis.removeClass('open')
 
         })
-            //end send message button
+        //end send message button
 
-        this.el.btnEmojis.on('click', e=>{
+        this.el.btnEmojis.on('click', e => {
             this.el.panelEmojis.toggleClass('open');
             this.el.panel
         })
 
-        this.el.panelEmojis.querySelectorAll('.emojik').forEach(emoji=>{
+        this.el.panelEmojis.querySelectorAll('.emojik').forEach(emoji => {
 
-            emoji.on('click', e=>{
+            emoji.on('click', e => {
                 //console.log(emoji.dataset.unicode);
 
                 let img = this.el.imgEmojiDefault.cloneNode();
@@ -794,7 +835,7 @@ export class WhatsappController{
 
                 let cursor = window.getSelection();
 
-                if(!cursor.focusNode.id || !cursor.focusNode.id == 'input-text'){
+                if (!cursor.focusNode.id || !cursor.focusNode.id == 'input-text') {
                     this.el.inputText.focus();
                     let cursor = window.getSelection();
                 }

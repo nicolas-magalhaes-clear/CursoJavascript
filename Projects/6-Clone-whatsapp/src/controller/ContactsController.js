@@ -61,9 +61,15 @@ export class ContactsController extends ClassEvent {
 
                 `
                 if(contact.photo){
+                    console.log('TEM FOTO BLZZ?')
                     let img = div.querySelector('.contact-photo');
                     img.src = contact.photo;
+                    console.log('div ok:-', div.querySelector('.contact-photo'))
+                    console.log('PHOTO URL SRC:', contact.photo)
+                    
+                    console.log('IMAGE SRC:::', img.src)
                     img.show();
+                    console.log('IMAGE SHOW')
                 }
                 div.on('click', e => {
                     this.trigger('select', contact)
