@@ -1,7 +1,7 @@
 import { Firebase } from "../utils/Firebase";
 import { Format } from "../utils/format";
 import { Model } from "./Model";
-import { Base64 } from "../utils/base64";
+
 
 export class Message extends Model {
 
@@ -38,8 +38,8 @@ export class Message extends Model {
     get fileType() { return this._data.fileType }
     set fileType(value) { this._data.fileType = value }
 
-    get size(){ return this._data.size}
-    set size(value){ this._data.size = value}
+    get size() { return this._data.size }
+    set size(value) { this._data.size = value }
 
     get info() { return this._data.info }
     set info(value) { this._data.info = value }
@@ -80,7 +80,7 @@ export class Message extends Model {
                                 </div>
                             </div>
                             <div class="_1lC8v">
-                                <div dir="ltr" class="_3gkvk selectable-text invisible-space copyable-text">Nome do Contato Anexado</div>
+                                <div dir="ltr" class="_3gkvk selectable-text invisible-space copyable-text">${this.content.name}</div>
                             </div>
                             <div class="_3a5-b">
                                 <div class="_1DZAH" role="button">
@@ -95,6 +95,14 @@ export class Message extends Model {
 
                 </div>
             `
+            if(this.content.photo){
+                let img = div.querySelector('.photo-contact-sended');
+                img.src = this.photo;
+                img.show();
+            }
+            div.querySelector('.btn-message-send').on('click', e=> {
+                console.log('enviar mensagens contato')
+            })
                 break
             case 'image':
                 div.innerHTML = `
@@ -319,6 +327,8 @@ export class Message extends Model {
             .doc(chatId)
             .collection('messages')
     }
+
+    
     static send(chatId, from, type, content) {
 
 
@@ -418,7 +428,7 @@ export class Message extends Model {
     }
 
     static upload(file, from) {
-
+        console.log('file>  upload', file)
         return new Promise((s, f) => {
 
 
@@ -439,6 +449,13 @@ export class Message extends Model {
 
 
     }
+
+    static sendContact(chatId, from, contact){
+
+        return Message.send(chatId, from, 'contact', contact);
+
+    }
+
     static sendDocument(chatId, from, file, filePreview, info) {
         console.log('1 - Chegou na funcao sendDocument')
         console.log('chatid', chatId)
@@ -455,8 +472,15 @@ export class Message extends Model {
 
                     let downloadFile = downloadURL
 
+                    if (file.type !== 'application/pdf') {
+                        filePreview = file
+                    }
+                    console.log('FILE PREVIEW ANTES', filePreview)
                     Message.upload(filePreview, from).then(snapshot2 => {
-
+                        console.log('FILE PREVIEW DEPOIS', filePreview)
+                        if (file.type !== 'application/pdf') {
+                            filePreview = undefined
+                        }
                         snapshot2.ref.getDownloadURL().then(downloadURL2 => {
                             let downloadPreview = downloadURL2
 
@@ -480,7 +504,8 @@ export class Message extends Model {
                                     filename: file.name,
                                     size: file.size,
                                     fileType: file.type,
-                                    status: 'sent'
+                                    status: 'sent',
+                                    info: ''
                                 }, { merge: true })
                             }
                         })

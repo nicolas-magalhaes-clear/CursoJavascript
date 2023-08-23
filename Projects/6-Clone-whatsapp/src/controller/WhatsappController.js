@@ -8,6 +8,7 @@ import { User } from '../model/User';
 import { Chat } from '../model/Chat';
 import { Message } from '../model/Message';
 import { Base64 } from '../utils/base64';
+import { ContactsController } from './ContactsController';
 
 
 export class WhatsappController{
@@ -149,6 +150,13 @@ export class WhatsappController{
                                                 </div>
                                             
                     `;
+
+                    if(contact.photo){
+                        let img = div.querySelector('.photo');
+                        img.src = contact.photo;
+                        img.show()
+                    }
+                    
                     div.on('click', e=>{
                         //console.log('setting active chat')
                         this.setActiveChat(contact)
@@ -658,10 +666,23 @@ export class WhatsappController{
 
             //contacts attach area
         this.el.btnAttachContact.on('click', e=>{
-            this.el.modalContacts.show();
+            
+
+            this._contactsController = new ContactsController(this.el.modalContacts, this._user);
+
+            this._contactsController.on('select', contact => {
+                Message.sendContact(
+                    this._contactActive.chatId,
+                    this._user.email,
+                    contact)
+            })
+            this._contactsController.open()
         })
         this.el.btnCloseModalContacts.on('click', e=>{
-            this.el.modalContacts.hide()
+
+
+            this._contactsController.close();
+
         })
             //end contacts attach area
 
