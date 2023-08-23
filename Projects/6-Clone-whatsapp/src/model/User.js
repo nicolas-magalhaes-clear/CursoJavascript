@@ -27,9 +27,9 @@ export class User extends Model{
 
     getById(id){
         return new Promise((s,f)=>{
-           // console.log('id received:', id);
+           
             User.findByEmail(id).onSnapshot(doc=>{
-                //console.log('DOCCCC:::', doc.data())
+                           
                 this.fromJSON(doc.data())
 
                 s(doc)

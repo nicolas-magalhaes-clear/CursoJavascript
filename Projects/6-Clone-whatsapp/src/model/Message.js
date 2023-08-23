@@ -11,66 +11,159 @@ export class Message extends Model {
 
     }
 
+    /**
+     * get 'filename' value
+     */
     get filename() { return this._data.filename };
+
+    /**
+     * set 'filename' value
+     */
     set filename(value) { this._data.filename = value }
 
+    /**
+     * get 'content' value
+     */
     get content() { return this._data.content };
+
+    /**
+     * set 'content' value
+     */
     set content(value) { this._data.content = value }
 
+
+    /**
+     * get 'type' value
+     */
     get type() { return this._data.type }
+
+    /**
+     * set 'type' value
+     */
     set type(value) { this._data.type = value }
 
+
+    /**
+     * get 'timeStamp' value
+     */
     get timeStamp() { return this._data.timeStamp }
+
+    /**
+     * set 'timeStamp' value
+     */
     set timeStamp(value) { this._data.timeStamp = value }
 
+
+    /**
+     * get 'status' value
+     */
     get status() { return this._data.status }
+
+    /**
+     * set 'status' value
+     */
     set status(value) { this._data.status = value }
 
+    /**
+     * get 'id' value
+     */
     get id() { return this._data.id }
+
+    /**
+     * set 'id' value
+     */
     set id(value) { this._data.id = value }
 
+    /**
+     * get 'from' value
+     */
     get from() { return this._data.from; }
+
+    /**
+     * set 'from' value
+     */
     set from(value) { this._data.from = value; }
 
+    /**
+     * get 'preview' value
+     */
     get preview() { return this._data.preview }
+
+    /**
+     * set 'preview' value
+     */
     set preview(value) { this._data.preview = value }
 
+    /**
+     * get 'fileType' value
+     */
     get fileType() { return this._data.fileType }
+
+    /**
+     * set 'fileType' value
+     */
     set fileType(value) { this._data.fileType = value }
 
+    /**
+     * get 'size' value
+     */
     get size() { return this._data.size }
+
+    /**
+     * set 'size' value
+     */
     set size(value) { this._data.size = value }
 
+    /**
+     * get 'info' value
+     */
     get info() { return this._data.info }
+
+    /**
+     * set 'info' value
+     */
     set info(value) { this._data.info = value }
 
+    /**
+     * get 'photo' value
+     */
     get photo() { return this._data.photo }
+
+    /**
+     * set 'photo' value
+     */
     set photo(value) { this._data.photo = value }
 
+    /**
+     * get 'duration' value
+     */
     get duration() { return this._data.duration }
+
+    /**
+     * set 'duration' value
+     */
     set duration(value) { this._data.duration = value }
 
 
 
 
 
-
+    /**
+     * get the HTML view of which element is sent
+     * @param {boolean} me 
+     * @returns the 'div' element which contains the current message
+     */
     getViewElement(me = true) {
 
 
         let div = document.createElement('div');
 
-        div.className = 'message';
-        //console.log('DATA1----:', this._data)
-        //console.log('content:::', this.content)
-        //console.log('TYPE:', this.type)
+        div.className = 'message';    
         switch (this.type) {
-
 
             case 'contact':
 
                 div.innerHTML = `
-
                 <div class="_3_7SH kNKwo  tail">
                     <span class="tail-container"></span>
                     <span class="tail-container highlight"></span>
@@ -191,7 +284,7 @@ export class Message extends Model {
                                             </svg>
                                         </span>
                                     </button>
-                                    <button class="_2pQE3 audio-pause">
+                                    <button class="_2pQE3 audio-pause" style="display:none">
                                         <span data-icon="audio-pause">
                                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 34 34" width="34" height="34">
                                                 <path fill="#263238" fill-opacity=".5" d="M9.2 25c0 .5.4 1 .9 1h3.6c.5 0 .9-.4.9-1V9c0-.5-.4-.9-.9-.9h-3.6c-.4-.1-.9.3-.9.9v16zm11-17c-.5 0-1 .4-1 .9V25c0 .5.4 1 1 1h3.6c.5 0 1-.4 1-1V9c0-.5-.4-.9-1-.9 0-.1-3.6-.1-3.6-.1z"></path>
@@ -279,7 +372,7 @@ export class Message extends Model {
                 }
 
                 audioEl.onpause = e => {
-
+                    console.log('Duração total:', this.duration)
                     audioDuration.innerHTML = Format.toTime(this.duration * 1000)
                     btnPlay.show();
                     btnPause.hide();
@@ -294,9 +387,9 @@ export class Message extends Model {
                 audioEl.ontimeupdate = e => {
                     btnPlay.hide()
                     btnPause.hide()
-
+                    console.log('CURRENT AUDIO TIME: ', audioEl.currentTime)
                     audioDuration.innerHTML = Format.toTime(audioEl.currentTime * 1000);
-                    inputRange.value = (audioEl.currentSrc * 100) / this.duration
+                    inputRange.value = (audioEl.currentTime * 100) / this.duration
 
                     if (audioEl.paused) {
                         btnPlay.show();
@@ -383,7 +476,8 @@ export class Message extends Model {
                 `;
         }
 
-        let className = 'message-in'
+        let className = 'message-in';
+
         if (me) {
             className = 'message-out'
 
@@ -391,23 +485,34 @@ export class Message extends Model {
 
 
         }
+
         div.firstElementChild.classList.add(className);
-        //console.log('div:', div)
+
         return div
     }
 
-
-    static getRef(chatId) {
-        //console.log('chatID-.-.-.-.', chatId)
+    /**
+     * get reference from an specific 'chatId' value and its collection 'messages'
+     * @param {string} chatId 
+     * @returns 
+     */
+    static getRef(chatId) {        
         return Firebase.db()
             .collection('chats')
             .doc(chatId)
             .collection('messages')
     }
 
-
+    /**
+     * send a message
+     * the type of message is defined in each method
+     * @param {string} chatId 
+     * @param {string} from 
+     * @param {string} type 
+     * @param {*} content 
+     * @returns 
+     */
     static send(chatId, from, type, content) {
-
 
         return new Promise((s, f) => {
 
@@ -424,7 +529,6 @@ export class Message extends Model {
                 }
 
             ).then(result => {
-                console.log('getting result:::', result)
 
                 let docRef = result.parent.doc(result.id);
                 console.log('docref:', docRef)
@@ -435,25 +539,25 @@ export class Message extends Model {
                         merge: true
                     })
                 s(docRef);
-                console.log('Okkk', docRef)
-
 
             }).catch(err => {
                 f(err);
                 console.error(err)
             })
-
         })
 
 
     }
+
+    /**
+     * 
+     * @returns each svg icon related to message status (wait, sent, received, read) 
+     */
     getStatusViewElement() {
 
         let div = document.createElement('div');
 
         div.className = 'message-status';
-        //console.log('thisstatus ===', this.status)
-
 
         switch (this.status) {
 
@@ -504,6 +608,12 @@ export class Message extends Model {
 
     }
 
+    /**
+     * send the file to firebase
+     * @param {object} file 
+     * @param {string} from 
+     * @returns 
+     */
     static upload(file, from) {
         console.log('file>  upload', file)
         return new Promise((s, f) => {
@@ -527,15 +637,24 @@ export class Message extends Model {
 
     }
 
+
+    /**
+     * send audio message
+     * @param {string} chatId 
+     * @param {string} from 
+     * @param {object} file 
+     * @param {object} metadata 
+     * @param {string} photo 
+     */
     static sendAudio(chatId, from, file, metadata, photo) {
-        console.log('chegou no sendAudio')
+        
         return Message.send(chatId, from, 'audio', '').then(msgRef => {
-            console.log('Fez o send kkkk')
+        
             Message.upload(file, from).then(snapshot => {
-                console.log('fez o upload do audio')
+
+
                 snapshot.ref.getDownloadURL().then(downloadURL => {
 
-                    console.log('enviando para o banco - 3')
                     let downloadFile = downloadURL;
                     msgRef.set({
                         content: downloadFile,
@@ -560,15 +679,19 @@ export class Message extends Model {
 
     }
 
+    /**
+     * send a document message
+     * @param {string} chatId 
+     * @param {string} from 
+     * @param {object} file 
+     * @param {*} filePreview 
+     * @param {string} info 
+     */
     static sendDocument(chatId, from, file, filePreview, info) {
-        console.log('1 - Chegou na funcao sendDocument')
-        console.log('chatid', chatId)
-        console.log('from', from)
-        console.log('file:', file);
-        console.log('filePreview', filePreview);
+
         Message.send(chatId, from, 'document').then(msgRef => {
 
-            console.log('REFKK', msgRef)
+            
 
             Message.upload(file, from).then(snapshot => {
 
@@ -579,9 +702,9 @@ export class Message extends Model {
                     if (file.type !== 'application/pdf') {
                         filePreview = file
                     }
-                    console.log('FILE PREVIEW ANTES', filePreview)
+
                     Message.upload(filePreview, from).then(snapshot2 => {
-                        console.log('FILE PREVIEW DEPOIS', filePreview)
+
                         if (file.type !== 'application/pdf') {
                             filePreview = undefined
                         }
@@ -618,6 +741,13 @@ export class Message extends Model {
             })
         })
     }
+
+    /**
+     * send a image message
+     * @param {string} chatId 
+     * @param {string} from 
+     * @param {object} file 
+     */
     static sendImage(chatId, from, file) {
 
         return new Promise((s, f) => {

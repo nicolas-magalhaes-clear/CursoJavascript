@@ -10,16 +10,44 @@ export class Chat extends Model{
     }
 
 
+    /**
+     * get users value from _data in Model
+     * @example this.users
+     */
     get users(){ return this._data.users};
+    
+    /**
+     * set users value from _data in Model
+     * @example this.users = value
+     */
     set users(value){this._data.users = value};
 
+    /**
+     * get timeStamp value from _data in Model
+     * @example this.timeStamp
+     */
     get timeStamp(){ return this._data.timeStamp};
+
+    /**
+     * set timeStamp value from _data in Model
+     * @example this.timeStamp = value
+     */
     set timeStamp(value){this._data.timeStamp = value};
 
+    /**
+     * get refs from firebase 'chat' collection
+     * @returns Firebase.db().collection('/chats')
+     */
     static getRef(){
         return Firebase.db().collection('/chats');
     }
 
+    /**
+     * 
+     * @param {string} myEmail 
+     * @param {string} contactEmail 
+     * @returns the document where myEmail and contactEmail are
+     */
     static find(myEmail, contactEmail){
 
         return Chat.getRef()
@@ -28,6 +56,12 @@ export class Chat extends Model{
             .get();
     }
 
+    /**
+     * Create an chat connection between two users
+     * @param {string} myEmail 
+     * @param {string} contactEmail 
+     * @returns 
+     */
     static create(myEmail, contactEmail){
 
         return new Promise((s,f)=>{
@@ -41,7 +75,6 @@ export class Chat extends Model{
                 users,
                 timeStamp: new Date()
             }).then(doc =>{
-                //console.log('OKKKKKKKK', doc)
                 Chat.getRef().doc(doc.id).get().then(chat=>{
                     s(chat)
                 }).catch(err=>{
@@ -54,6 +87,12 @@ export class Chat extends Model{
         })
     }
 
+    /**
+     * Creates a chat connection in firebase if it don't exists
+     * @param {string} myEmail 
+     * @param {string} contactEmail 
+     * @returns the 'chat' object as result of a promise
+     */
     static createIfNotExists(myEmail, contactEmail){
         return new Promise((s,f)=>{
 
