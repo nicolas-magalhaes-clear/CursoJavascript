@@ -51,6 +51,7 @@ export class WhatsappController{
                 let scrollTop = this.el.panelMessagesContainer.scrollTop
                     let scrollTopMax = (this.el.panelMessagesContainer.scrollHeight - this.el.panelMessagesContainer.offsetHeight)
                     let autoScroll = (scrollTop >= scrollTopMax)
+                    
                     let message = new Message();
                     message.fromJSON(data);
                     let me = (data.from === this._user.email)
@@ -61,11 +62,19 @@ export class WhatsappController{
                         }, {merge: true})
                     }
                     let view = message.getViewElement(me)
-                    this.el.panelMessagesContainer.appendChild(view)
+                    this.el.panelMessagesContainer.appendChild(view);
+                    
                     if(autoScroll){
                         this.el.panelMessagesContainer.scrollTop = (this.el.panelMessagesContainer.scrollHeight - this.el.panelMessagesContainer.offsetHeight)
                     }
-                } else if(me) {
+                } else{
+
+                    let view = message.getViewElement(me)
+                    this.el.panelMessagesContainer.querySelector('#_' + data.id).innerHTML = view.innerHTML
+                } 
+                
+                
+                if(this.el.panelMessagesContainer.querySelector('#_' + data.id) && me) {
                     let msgEl = this.el.panelMessagesContainer.querySelector('#_'+ data.id)
                     msgEl.querySelector('.message-status').innerHTML = message.getStatusViewElement().outerHTML
                 }
@@ -632,17 +641,17 @@ export class WhatsappController{
             else{
                 
 
-                let filePreview = file;
+            
                 Message.sendDocument(
                     this._contactActive.chatId,
                     this._user.email,
-                    file,
-                    filePreview
+                    file
                     )
 
             }
             
-            
+            this.el.btnClosePanelDocumentPreview.click()
+            this.el.panelMessagesContainer.show();
             
         })
             //end document attach area

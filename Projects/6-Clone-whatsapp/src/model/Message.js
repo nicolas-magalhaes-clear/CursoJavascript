@@ -11,8 +11,8 @@ export class Message extends Model {
 
     }
 
-    get filename(){return this._data.filename};
-    set filename(value){ this._data.filename = value}
+    get filename() { return this._data.filename };
+    set filename(value) { this._data.filename = value }
 
     get content() { return this._data.content };
     set content(value) { this._data.content = value }
@@ -32,14 +32,17 @@ export class Message extends Model {
     get from() { return this._data.from; }
     set from(value) { this._data.from = value; }
 
-    get preview(){ return this._data.preview}
-    set preview(value){this._data.preview = value}
+    get preview() { return this._data.preview }
+    set preview(value) { this._data.preview = value }
 
-    get fileType(){ return this._data.fileType}
-    set fileType(value){ this._data.fileType = value}
+    get fileType() { return this._data.fileType }
+    set fileType(value) { this._data.fileType = value }
 
-    get info(){return this._data.info}
-    set info(value){this._data.info = value}
+    get size(){ return this._data.size}
+    set size(value){ this._data.size = value}
+
+    get info() { return this._data.info }
+    set info(value) { this._data.info = value }
 
     getViewElement(me = true) {
 
@@ -272,7 +275,7 @@ export class Message extends Model {
                 </div>
             </div>        
                 `
-                div.on('click', e=>{
+                div.on('click', e => {
                     window.open(this.content)
                 })
                 break
@@ -317,11 +320,11 @@ export class Message extends Model {
             .collection('messages')
     }
     static send(chatId, from, type, content) {
-        
+
 
         return new Promise((s, f) => {
-            
-            if (content === undefined){
+
+            if (content === undefined) {
                 content = '';
             }
             Message.getRef(chatId).add(
@@ -332,7 +335,7 @@ export class Message extends Model {
                     type,
                     from
                 }
-                
+
             ).then(result => {
                 console.log('getting result:::', result)
 
@@ -340,10 +343,10 @@ export class Message extends Model {
                 console.log('docref:', docRef)
                 docRef.set({
                     status: 'sent'
-                    },
+                },
                     {
-                    merge: true
-                })
+                        merge: true
+                    })
                 s(docRef);
                 console.log('Okkk', docRef)
 
@@ -409,7 +412,7 @@ export class Message extends Model {
                 break
 
         }
-        
+
         return div;
 
     }
@@ -428,7 +431,7 @@ export class Message extends Model {
             }, err => {
                 f(err)
             }, () => {
-                
+
                 s(uploadTask.snapshot);
 
             })
@@ -436,49 +439,55 @@ export class Message extends Model {
 
 
     }
-    static sendDocument(chatId, from, file, filePreview) {
+    static sendDocument(chatId, from, file, filePreview, info) {
         console.log('1 - Chegou na funcao sendDocument')
         console.log('chatid', chatId)
         console.log('from', from)
         console.log('file:', file);
         console.log('filePreview', filePreview);
         Message.send(chatId, from, 'document').then(msgRef => {
-            console.log('MSGREF:::', msgRef)
 
+            console.log('REFKK', msgRef)
 
             Message.upload(file, from).then(snapshot => {
-                console.log('2 - snapshot chegou', snapshot)
+
                 snapshot.ref.getDownloadURL().then(downloadURL => {
 
-                    console.log('3- Conseguiu URL de download:', downloadURL)
                     let downloadFile = downloadURL
 
                     Message.upload(filePreview, from).then(snapshot2 => {
-                        console.log('4 - Chegou em messageupload(filepreview)')
-                        console.log('4.1- snapshot2 ->', snapshot2);
+
                         snapshot2.ref.getDownloadURL().then(downloadURL2 => {
-                            
                             let downloadPreview = downloadURL2
-                            console.log('5- Downloadpreview:', downloadPreview)                            
-                            msgRef.set({
-                                content: downloadFile,
-                                preview: downloadPreview,
-                                filename: file.name,
-                                size: file.size,
-                                fileType: file.type,
-                                status: 'sent'
-                            }, { merge: true })
+
+                            if (filePreview) {
+
+                                msgRef.set({
+                                    content: downloadFile,
+                                    preview: downloadPreview,
+                                    filename: file.name,
+                                    size: file.size,
+                                    fileType: file.type,
+                                    status: 'sent',
+                                    info
+                                }, { merge: true })
+
+                            }
+                            else {
+
+                                msgRef.set({
+                                    content: downloadFile,
+                                    filename: file.name,
+                                    size: file.size,
+                                    fileType: file.type,
+                                    status: 'sent'
+                                }, { merge: true })
+                            }
                         })
                     })
                 })
             })
-
-
-
         })
-
-
-
     }
     static sendImage(chatId, from, file) {
 
