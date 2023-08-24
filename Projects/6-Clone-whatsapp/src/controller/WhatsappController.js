@@ -31,7 +31,7 @@ export class WhatsappController {
 
     setActiveChat(contact) {
         if (this._contactActive) {
-            Message.getRef(this._contactActive.chatOd).onSnapshot(() => { })
+            Message.getRef(this._contactActive.chatId).onSnapshot(() => { })
         }
         this._contactActive = contact
         this.el.activeName.innerHTML = contact.name;
@@ -111,7 +111,32 @@ export class WhatsappController {
                     })
                 }
             })
+
+            let msgs = this.el.panelMessagesContainer
+            let msgList = msgs.querySelectorAll('.message')
+    
+            let lastMessage = msgList[msgList.length - 1].querySelector('.message-text').innerHTML
+
+            this._user.updateLastMessage('', this._contactActive.email).then(result=>{
+                console.log('resulte:', result)
+                User.getContactsRef(this._user.email).doc(result.id).set({
+                    lastMessage
+                }, {
+                    merge: true
+                }
+                )
+                
+                
+
+            })
+    
+            
+            
+    
+           // console.log('LASTMESSAGE:', lastMessage)
+    
         })
+        
     }
 
     initContacts() {
@@ -825,6 +850,10 @@ export class WhatsappController {
                 this._user.email,
                 'text',
                 this.el.inputText.innerHTML);
+            
+            
+            
+            
 
             this.el.inputText.innerHTML = '';
 
