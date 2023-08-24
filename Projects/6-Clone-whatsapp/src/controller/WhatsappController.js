@@ -52,13 +52,17 @@ export class WhatsappController {
                 data.id = doc.id;
                 let scrollTop = this.el.panelMessagesContainer.scrollTop
                 let scrollTopMax = (this.el.panelMessagesContainer.scrollHeight - this.el.panelMessagesContainer.offsetHeight)
-                let autoScroll = (scrollTop >= scrollTopMax)
+                
 
                 let message = new Message();
                 message.fromJSON(data);
                 
                 let me = (data.from === this._user.email)
                 let view = message.getViewElement(me)
+                this.viewSize = view.offsetHeight
+                
+                let autoScroll = ((scrollTop + view.offsetHeight) >= scrollTopMax)
+                console.log('view:', view)
                 if (!this.el.panelMessagesContainer.querySelector('#_' + data.id)) {
                     if (!me) {
                         doc.ref.set({
