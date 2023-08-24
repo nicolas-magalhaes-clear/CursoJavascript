@@ -3,6 +3,15 @@ export class Firebase{
 
     constructor(){
 
+        this._config2 = {
+            apiKey: "AIzaSyBCFW9yYwWhelsunoF3Fci_yMzs-PxqaCw",
+            authDomain: "whatsapp-clone-bf712.firebaseapp.com",
+            projectId: "whatsapp-clone-bf712",
+            storageBucket: "gs://whatsapp-clone-bf712.appspot.com",
+            messagingSenderId: "778917491610",
+            appId: "1:778917491610:web:9e7e321a3e8f5817dac023",
+            measurementId: "G-08GWDV6CRM"
+        };
         this._config = {            
             apiKey: "AIzaSyDzVeLwZr4bmsIFHxM0JiwSp2pr5oTTAh0",
             authDomain: "whatsapp-clone-74e56.firebaseapp.com",
@@ -14,7 +23,7 @@ export class Firebase{
         };
         this.init();
     
-    }
+    } 
 
     init(){
         if(!window._initalizedFirebase){

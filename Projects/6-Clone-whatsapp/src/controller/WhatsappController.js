@@ -122,10 +122,10 @@ export class WhatsappController {
         this._user.on('contactschange', docs => {
 
             this.el.contactsMessagesList.innerHTML = '';
-            //console.log('DOCSSSS OK:::', docs)
+            
             docs.forEach(doc => {
 
-                //console.log('FOREACHCH')
+            
                 let div = document.createElement('div');
 
                 let contact = doc.data();
@@ -153,7 +153,7 @@ export class WhatsappController {
                                                             <span dir="auto" title="${contact.name}" class="_1wjpf">${contact.name}</span>
                                                         </div>
                                                         <div class="_3Bxar">
-                                                            <span class="_3T2VG">${contact.lastMessageTime}</span>
+                                                            <span class="_3T2VG">${Format.timeStampToTime(contact.lastMessageTime)}</span>
                                                         </div>
                                                     </div>
                                                     <div class="_1AwDx">
@@ -188,10 +188,8 @@ export class WhatsappController {
                     img.show()
                 }
 
-                div.on('click', e => {
-                    //console.log('setting active chat')
+                div.on('click', e => {                    
                     this.setActiveChat(contact)
-
                 })
 
 
