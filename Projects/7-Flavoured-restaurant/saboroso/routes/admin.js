@@ -1,7 +1,8 @@
 var express = require('express');
 var router = express.Router();
 var users = require('./../inc/users');
-var admin = require('./../inc/admin')
+var admin = require('./../inc/admin');
+var menus = require('./../inc/menus')
 
 router.use(function(req, res, next){
 
@@ -77,8 +78,19 @@ router.get('/contacts', function(req, res, next){
     res.render('admin/contacts', admin.getParams(req))
 });
 
+
+router.post('/menus', function(req, res, next){
+    res.send(req.fields)
+})
+
 router.get('/menus', function(req,res, next){
-    res.render('admin/menus', admin.getParams(req))
+
+    menus.getMenus().then(data => {
+        res.render('admin/menus', admin.getParams(req,{
+            data
+        }))
+    })
+    
 })
 
 router.get('/emails', function(req, res, next){
