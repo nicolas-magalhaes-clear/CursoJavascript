@@ -1,4 +1,18 @@
 module.exports = {
+    dashboard(){
+
+        return new Promise((resolve, reject) =>{
+            
+        })
+
+    },
+    getParams(req, params){
+
+        return Object.assign({}, {
+            menus: req.menus,
+            user: req.session.user
+        }, params)
+    },
     getMenus(req){
 
         let menus = [{
