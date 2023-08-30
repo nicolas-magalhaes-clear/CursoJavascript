@@ -18,6 +18,7 @@ class hcodeFileReader{
 
 
                 document.querySelector(this.imgEl).src = result;
+                document.querySelector(this.inputEl)                
             });
 
         })

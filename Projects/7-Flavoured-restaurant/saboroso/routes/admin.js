@@ -82,7 +82,11 @@ router.get('/contacts', function(req, res, next){
 
 router.post('/menus', function(req, res, next){
     console.log('chegou')
+    console.log(req.fields)
+    console.log(req.files)
     menus.save(req.fields, req.files).then(results =>{
+
+        console.log('Resultados:', results)
         res.send(results);
     }).catch(err=>{
         res.send(err);

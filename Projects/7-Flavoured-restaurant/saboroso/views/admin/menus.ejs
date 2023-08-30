@@ -175,7 +175,7 @@
       let formUpdate = document.querySelector('#modal-update form')
 
       formUpdate.save().then(json=>{
-        window.location.reload();
+        //window.location.reload();
       }).catch(err =>{
         console.log(err);
       })
@@ -200,6 +200,8 @@
             switch (name) {
               case 'photo':
                 formUpdate.querySelector('img').src = '/'+data[name]
+                document.querySelector('#inputPhotoUpdate').dataset.filename = '/'+data[name];
+                
                 break
 
               default:
