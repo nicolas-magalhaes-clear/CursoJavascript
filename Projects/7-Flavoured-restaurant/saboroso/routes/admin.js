@@ -46,6 +46,7 @@ router.get('/', function(req, res, next){
 });
 
 router.post('/login', function(req,res, next){
+    console.log('chegou kkkkkkkkk')
 
     if(!req.body.email){
         users.render(req, res, 'preencha o campo email');
@@ -70,7 +71,7 @@ router.post('/login', function(req,res, next){
 router.get('/login', function(req, res, next){
 
     
-    users.render(req,res, null)
+    users.render(req,res, null) 
 });
 
 router.get('/contacts', function(req, res, next){
@@ -80,7 +81,12 @@ router.get('/contacts', function(req, res, next){
 
 
 router.post('/menus', function(req, res, next){
-    res.send(req.fields)
+    console.log('chegou')
+    menus.save(req.fields, req.files).then(results =>{
+        res.send(results);
+    }).catch(err=>{
+        res.send(err);
+    })
 })
 
 router.get('/menus', function(req,res, next){
