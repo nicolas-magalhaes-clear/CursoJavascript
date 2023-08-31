@@ -15,39 +15,50 @@ var adminRouter = require('./routes/admin');
 var app = express();
 
 
-app.use((req, res, next)=> {
-  
-  if (req.method.toLocaleLowerCase() === 'post' && req.url !== '/admin/login'){
-  
-    var form = new formidable.IncomingForm({
+app.use(async (req, res, next) => {
+  if (req.method.toLowerCase() === 'post') {
+    console.log(req.method);
+
+    const form = new formidable.IncomingForm({
       uploadDir: path.join(__dirname, "/public/images"),
-      keepExtensions: true
+      keepExtensions: true,
+      allowEmptyFiles: true,
     });
-    form.parse(req,  (err, fields, files)=> {
 
-      for (const key in fields) {
+    await new Promise((resolve, reject) => {
+      form.parse(req, (err, fields, files) => {
+        if (err) {
+          
+          reject(err);
+          return;
+        }
+
+        for (const key in fields) {
+          fields[key] = fields[key][0];
+        }
+        if (files.photo) {
+          files = files.photo[0];
+        }
+
+        req.fields = fields;
+        req.files = files;
+        console.log('req.fields1:', req.fields);
+        console.log('req.files1', req.files);
+
+        console.log('Ok mano');
         
-        fields[key] = fields[key][0]
-        
-
-      }
-      if(files.photo){
-        files = files.photo[0]
-      }
-      
-      req.fields = fields
-      req.files = files
-      
-
-
-      next()
-    })
-
-  } else {
+        resolve();
+        next()
+      });
+    });
+    
     next()
+  } else {
+    next();
   }
+  
+});
 
-})
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

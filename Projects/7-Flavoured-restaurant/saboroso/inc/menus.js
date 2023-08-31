@@ -52,9 +52,9 @@ module.exports = {
     if (Object.keys(files).length === 0) {
 
       //if it's empty, then search in db the current photo src and atributtes it to fields.photo
-      this.getPhotoById(fields).then(result => {
+      await this.getPhotoById(fields).then(result => {
 
-        fields.photo = `images/${result[0].photo}`
+        fields.photo = result[0].photo
 
       })
     }
@@ -64,6 +64,7 @@ module.exports = {
 
     }
 
+    console.log('fields:', fields)
 
 
 
@@ -98,6 +99,7 @@ module.exports = {
       conn.query(query, params, (err, result) => {
 
         if (err) {
+          console.log('Erro:',err)
           reject(err)
         }
         else {
