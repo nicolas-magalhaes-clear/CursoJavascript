@@ -163,10 +163,10 @@
       new hcodeFileReader("#modal-create [type=file]", '#modal-create img');
 
       let formCreate = document.querySelector('#modal-create form')
-      
-      formCreate.save().then(json=>{
-        window.location.reload();
-      }).catch(err=>{
+
+      formCreate.save().then(json => {
+        //window.location.reload();
+      }).catch(err => {
         console.log(err);
       })
 
@@ -174,10 +174,34 @@
 
       let formUpdate = document.querySelector('#modal-update form')
 
-      formUpdate.save().then(json=>{
+      formUpdate.save().then(json => {
         //window.location.reload();
-      }).catch(err =>{
+      }).catch(err => {
         console.log(err);
+      })
+
+
+      document.querySelectorAll('.btn-delete').forEach(btn => {
+
+        btn.addEventListener('click', e => {
+
+          let tr = e.composedPath().find(el => {
+            return (el.tagName.toUpperCase() === 'TR')
+          })
+
+          let data = JSON.parse(tr.dataset.row)
+
+          if (confirm(`Deseja realmente excluir o menu ${data.title}?`)) {
+
+            fetch(`/admin/menus:${data.id}`, {
+              method: 'delete'
+            }).then(response => {
+              response.json().then(json => {
+                console.log('JSON', json)
+              })
+            })
+          }
+        })
       })
 
       document.querySelectorAll('.btn-update').forEach(btn => {
@@ -199,9 +223,9 @@
 
             switch (name) {
               case 'photo':
-                formUpdate.querySelector('img').src = '/'+data[name]
-                document.querySelector('#inputPhotoUpdate').dataset.filename = '/'+data[name];
-                
+                formUpdate.querySelector('img').src = '/' + data[name]
+                document.querySelector('#inputPhotoUpdate').dataset.filename = '/' + data[name];
+
                 break
 
               default:

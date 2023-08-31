@@ -10,14 +10,13 @@ module.exports = {
    * funcao ok okokokokok
    * @returns 
    */
-  async getById(fields) {
+  async getPhotoById(fields) {
 
-    let query = 'SELECT * FROM tb_menus WHERE id = ?';
-    let params = [
-        fields.id
-    ]
-    console.log('Ok carai')
     return new Promise((s, f) => {
+      let query = 'SELECT * FROM tb_menus WHERE id = ?';
+      let params = [
+        fields.id
+      ]
       conn.query(query, params, (err, result) => {
         if (err) {
           f(err);
@@ -49,35 +48,29 @@ module.exports = {
     let query, params;
 
 
+    //Verifies if 'files' is empty
     if (Object.keys(files).length === 0) {
-      console.log('Objeto vazio')
-      
-      await this.getById(fields).then(result => {
 
-        console.log('RESULT CHEGOU', result)
+      //if it's empty, then search in db the current photo src and atributtes it to fields.photo
+      this.getPhotoById(fields).then(result => {
 
-        fields.photo = result[0].photo
-        
-      }).catch(err => {
-        
-        console.log('err:', err)
+        fields.photo = `images/${result[0].photo}`
 
       })
     }
+    //If the 'files' has the property filepath, then  attributtes directly to fields.photo the
+    else if (files.filepath) {
+      fields.photo = `images/${files.newFilename}`
+
+    }
 
 
-    
 
-    console.log('valor de fields agora', fields)
+
+    //verifies if fields.id is bigger than 0, this specifies if we are creating or updating a query
     if (parseInt(fields.id) >= 0) {
-      console.log('UPDATE METHOD')
-      query = `
-        UPDATE tb_menus
-        SET title = ?,
-        description = ?,
-        price = ?,
-        photo = ?,
-        WHERE id = ?`
+      //UPDATE
+      query = 'UPDATE tb_menus SET title = ?, description = ?, price = ?, photo = ? WHERE id = ?'
 
       params = [
         fields.title,
@@ -86,10 +79,10 @@ module.exports = {
         fields.photo,
         fields.id
       ]
-      console.log('fields aqui:', fields)
+
     }
     else {
-      console.log('INSERT METHOD')
+      //INSERT
       query = "INSERT INTO tb_menus (title, description, price, photo) VALUES (?, ?, ? ,?)"
 
       params = [
@@ -103,6 +96,7 @@ module.exports = {
     return new Promise((resolve, reject) => {
 
       conn.query(query, params, (err, result) => {
+
         if (err) {
           reject(err)
         }
@@ -110,6 +104,20 @@ module.exports = {
           resolve(result)
         }
       })
+    })
+  },
+  delete(id){
+    return new Promise((resolve, reject)=>{
+      
+      conn.query('DELETE FROM td_menus WHERE id = ?', [id], (err, result)=>{
+        if(err){
+          reject(err);
+        }             
+        else{
+          resolve(result)
+        }                                                                                               
+      })
+
     })
   }
 }

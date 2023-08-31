@@ -81,9 +81,9 @@ router.get('/contacts', function(req, res, next){
 
 
 router.post('/menus', function(req, res, next){
-    console.log('chegou')
-    console.log(req.fields)
-    console.log(req.files)
+    
+    console.log('chegou')    
+    
     menus.save(req.fields, req.files).then(results =>{
 
         console.log('Resultados:', results)
@@ -101,6 +101,16 @@ router.get('/menus', function(req,res, next){
         }))
     })
     
+})
+
+router.delete('/menus:id', function(req, res, next){
+
+
+    menus.delete(req.params.id).then(result=>{
+        res.send(result)
+    }).catch(err=>{
+        res.send(err)
+    })
 })
 
 router.get('/emails', function(req, res, next){
