@@ -6,20 +6,22 @@ const menus = require('./../inc/menus');
 const reservations = require('../inc/reservations');
 
 router.use(function (req, res, next) {
-    console.log('OK')
-    console.log('req fields no middleware,', req.fields)
-    reservations.testConsole();
+    
+    console.log('Middleware1')
     if (['/login'].indexOf(req.url) === -1 && !req.session.user) {
+        console.log('Aqui é indexof rota login  ')
         res.redirect('/admin/login');
     }
     else {
+        console.log('Redirecionando para a rota:::', req.url)
         next()
     }
+    console.log('Nenhum dos dois porra')
 })
 
 
 router.use(function (req, res, next) {
-    
+    console.log('MIddleware2')
     req.menus = admin.getMenus(req);
 
     next();
@@ -132,20 +134,24 @@ router.get('/emails', function (req, res, next) {
  Reservations routes
  */
 router.get('/reservations', function (req, res, next) {
+    
+    reservations.getReservations().then(data=>{
 
-
-    res.render('admin/reservations', admin.getParams(req, {
-        date: {}
-    }))
+        res.render('admin/reservations', admin.getParams(req, {
+            date: {},
+            data
+        }))
+    })
+    
 });
 
 
-router.post('/reservations', (req,res,next)=>{
+router.post('/reservations', function(req,res,next){
     console.log('CHEGAMOS AONDE NINGUEM CHEGOU')
     reservations.save(req.fields).then(results => {
 
         console.log('Resultados:', results)
-        res.send(results);
+        res.redirect('/admin/reservations')
     }).catch(err => {
         console.log('Deu erro:', err)
         res.send(err);

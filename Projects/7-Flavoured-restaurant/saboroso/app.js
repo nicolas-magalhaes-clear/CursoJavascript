@@ -46,8 +46,9 @@ app.use(async (req, res, next) => {
         console.log('req.files1', req.files);
 
         console.log('Ok mano');
-        
+        console.log('req url:', req.url   )
         resolve();
+        
         next()
       });
     });

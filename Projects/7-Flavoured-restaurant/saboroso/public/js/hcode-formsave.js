@@ -2,10 +2,10 @@ HTMLFormElement.prototype.save = function () {
 
     let form = this;
 
-    console.log('form')
+    
     console.log(form.action)
 
-    console.log('formmm', form)
+
     return new Promise((resolve, reject) => {
         form.addEventListener('submit', e => {
             e.preventDefault();
