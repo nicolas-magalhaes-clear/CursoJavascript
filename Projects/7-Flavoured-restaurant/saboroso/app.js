@@ -7,8 +7,8 @@ var session = require('express-session');
 var redisStore = require('connect-redis')(session);
 var formidable = require('formidable')
 
-var indexRouter = require('./routes/index');
-var adminRouter = require('./routes/admin');
+const indexRouter = require('./routes/index');
+const adminRouter = require('./routes/admin');
 
 
 
@@ -17,12 +17,13 @@ var app = express();
 
 app.use(async (req, res, next) => {
   if (req.method.toLowerCase() === 'post') {
-    console.log(req.method);
+    
 
     const form = new formidable.IncomingForm({
       uploadDir: path.join(__dirname, "/public/images"),
       keepExtensions: true,
       allowEmptyFiles: true,
+      minFileSize: 0
     });
 
     await new Promise((resolve, reject) => {
@@ -43,10 +44,11 @@ app.use(async (req, res, next) => {
         req.fields = fields;
         req.files = files;
         console.log('req.fields1:', req.fields);
-        console.log('req.files1', req.files);
 
         console.log('Ok mano');
-        console.log('req url:', req.url   )
+
+        console.log('URL Requisitada no middleware inicial:', req.url)
+        
         resolve();
         
         next()

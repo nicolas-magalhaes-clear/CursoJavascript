@@ -221,6 +221,13 @@
 
       let formUpdate = document.querySelector('#modal-update form');
 
+      formCreate.save().then(json=>{
+        window.location.reload();
+      })
+
+      formUpdate.save().then(json=>{
+        window.location.reload();
+      })
 
       document.querySelectorAll('.btn-update').forEach(btn => {
 
@@ -243,7 +250,7 @@
                 document.querySelector('#inputPhotoUpdate').dataset.filename = '/' + data[name];
 
                 break
-              case 'date':
+              case 'date':send
                 let dataday = data[name].split('-')
                 console.log('dataday split');
                 console.log(dataday)

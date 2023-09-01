@@ -2,7 +2,7 @@ var express = require('express');
 
 var conn = require('./../inc/db')
 var reservations = require('./../inc/reservations')
-var router = express.Router();
+const router = express.Router();
 var menus = require('./../inc/menus');
 const contacts = require('../inc/contacts');
 

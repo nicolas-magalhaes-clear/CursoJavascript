@@ -4,26 +4,29 @@ const users = require('./../inc/users');
 const admin = require('./../inc/admin');
 const menus = require('./../inc/menus');
 const reservations = require('../inc/reservations');
+var sessionData;
+
 
 router.use(function (req, res, next) {
-    
+
     console.log('Middleware1')
-    if (['/login'].indexOf(req.url) === -1 && !req.session.user) {
-        console.log('Aqui é indexof rota login  ')
+    if (['/login'].indexOf(req.url) === -1 && sessionData == undefined) {
+        console.log('[MIDDLEWARE]Session data não definido! Redirecionando para login')
         res.redirect('/admin/login');
+        return
     }
     else {
-        console.log('Redirecionando para a rota:::', req.url)
+        console.log('[MIDDLEWARE]Session data ENCONTRADO! Prosseguindo para:', req.url)
         next()
     }
-    console.log('Nenhum dos dois porra')
+
 })
 
 
 router.use(function (req, res, next) {
     console.log('MIddleware2')
     req.menus = admin.getMenus(req);
-
+    console.log('middleware2 finalizado prosseguindo')
     next();
 })
 
@@ -63,7 +66,7 @@ router.post('/login', function (req, res, next) {
     }
     else {
         users.login(req.body.email, req.body.password).then(user => {
-
+            sessionData = user
             req.session.user = user;
             console.log('Login concluido')
             res.redirect('/admin')
@@ -87,19 +90,28 @@ router.get('/contacts', function (req, res, next) {
 });
 
 
-router.post('/menus', function (req, res, next) {
+router.post('/menus', async function (req, res, next) {
+        console.log('Chegou na rota', req.url)
+        console.log('chegou na rota de menus')
+        
 
-    console.log('chegou')
-    console.log('menus')
+        await new Promise((resolve, reject) => {
+            menus.save(req.fields, req.files).then(results => {
 
-    menus.save(req.fields, req.files).then(results => {
-
-        console.log('Resultados:', results)
-        res.send(results);
-    }).catch(err => {
-        res.send(err);
-    })
-})
+                
+                resolve(results)
+            }).catch(err => {
+                
+                console.log('ERRO:', err)
+                reject(err)
+            })
+        }).then(results=>{
+            console.log('results:   ', results);
+            res.send(results);
+        })
+    }
+    
+)
 
 router.get('/menus', function (req, res, next) {
 
@@ -134,19 +146,19 @@ router.get('/emails', function (req, res, next) {
  Reservations routes
  */
 router.get('/reservations', function (req, res, next) {
-    
-    reservations.getReservations().then(data=>{
+
+    reservations.getReservations().then(data => {
 
         res.render('admin/reservations', admin.getParams(req, {
             date: {},
             data
         }))
     })
-    
+
 });
 
 
-router.post('/reservations', function(req,res,next){
+router.post('/reservations', function (req, res, next) {
     console.log('CHEGAMOS AONDE NINGUEM CHEGOU')
     reservations.save(req.fields).then(results => {
 
@@ -160,14 +172,14 @@ router.post('/reservations', function(req,res,next){
 
 router.delete('/reservations:id', function (req, res, next) {
 
-/*
-    reservations.delete(req.params.id).then(result => {
-        res.send(result)
-    }).catch(err => {
-        res.send(err)
-    })
-
-    */
+    /*
+        reservations.delete(req.params.id).then(result => {
+            res.send(result)
+        }).catch(err => {
+            res.send(err)
+        })
+    
+        */
 })
 
 
