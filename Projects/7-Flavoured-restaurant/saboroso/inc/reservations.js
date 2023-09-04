@@ -77,7 +77,17 @@ module.exports = {
         })
     },
     delete(id){
-
-        
-    }
+        return new Promise((resolve, reject)=>{
+          
+          conn.query('DELETE FROM tb_reservations WHERE id = ?', [id], (err, result)=>{
+            if(err){
+              reject(err);
+            }             
+            else{
+              resolve(result)
+            }                                                                                               
+          })
+    
+        })
+      }
 }
