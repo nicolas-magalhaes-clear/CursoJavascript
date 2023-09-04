@@ -75,5 +75,9 @@ module.exports = {
             })
 
         })
+    },
+    delete(id){
+
+        
     }
 }

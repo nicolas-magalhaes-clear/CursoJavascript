@@ -9,7 +9,7 @@ var formidable = require('formidable')
 
 const indexRouter = require('./routes/index');
 const adminRouter = require('./routes/admin');
-
+const adminteste = require('./routes/admintest')
 
 
 var app = express();
@@ -84,6 +84,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/admin', adminRouter);
+app.use('/admintest', adminteste)
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

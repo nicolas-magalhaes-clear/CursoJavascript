@@ -166,8 +166,7 @@
 
       formCreate.save().then(json => {
         window.location.reload();
-      }).catch(err => {
-        console.log(err);
+        console.log('JSON2:', json)
       })
 
 
@@ -175,9 +174,8 @@
       let formUpdate = document.querySelector('#modal-update form')
 
       formUpdate.save().then(json=>{
-        console.log('Json', json);
-      }).catch(error =>{
-        console.log('Erro update save', error)
+        //window.location.reload()
+        console.log('JSON2:', json)
       })
 
 

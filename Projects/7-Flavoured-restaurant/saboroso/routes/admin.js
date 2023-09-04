@@ -8,15 +8,19 @@ var sessionData;
 
 
 router.use(function (req, res, next) {
-
+    console.log('Session data:', sessionData)
     console.log('Middleware1')
     if (['/login'].indexOf(req.url) === -1 && sessionData == undefined) {
         console.log('[MIDDLEWARE]Session data não definido! Redirecionando para login')
         res.redirect('/admin/login');
         return
     }
-    else {
+    else if (sessionData !== undefined) {
         console.log('[MIDDLEWARE]Session data ENCONTRADO! Prosseguindo para:', req.url)
+        next()
+    }
+    else {
+        console.log('[MIDDLEWARE] URlll Requisitada com sessionData definido', req.url)
         next()
     }
 
@@ -68,7 +72,7 @@ router.post('/login', function (req, res, next) {
         users.login(req.body.email, req.body.password).then(user => {
             sessionData = user
             req.session.user = user;
-            console.log('Login concluido')
+            console.log('Login concluisdo')
             res.redirect('/admin')
 
         }).catch(err => {
@@ -90,56 +94,20 @@ router.get('/contacts', function (req, res, next) {
 });
 
 
-router.post('/menus', async function (req, res, next) {
-        console.log('Chegou na rota', req.url)
-        console.log('chegou na rota de menus')
-        
-
-        await new Promise((resolve, reject) => {
-            menus.save(req.fields, req.files).then(results => {
-
-                
-                resolve(results)
-            }).catch(err => {
-                
-                console.log('ERRO:', err)
-                reject(err)
-            })
-        }).then(results=>{
-            console.log('results:   ', results);
-            res.send(results);
-        })
-    }
-    
-)
-
-router.get('/menus', function (req, res, next) {
-
-    menus.getMenus().then(data => {
-        res.render('admin/menus', admin.getParams(req, {
-            data
-        }))
-    })
-
-})
-
-router.delete('/menus:id', function (req, res, next) {
-
-
-    menus.delete(req.params.id).then(result => {
-        res.send(result)
-    }).catch(err => {
-        res.send(err)
-    })
-})
 
 
 
+
+/*
+Emails
+*/
 router.get('/emails', function (req, res, next) {
 
     res.render('admin/emails', admin.getParams(req))
 });
-
+/*
+Emails
+*/
 
 
 /*
@@ -164,22 +132,20 @@ router.post('/reservations', function (req, res, next) {
 
         console.log('Resultados:', results)
         res.redirect('/admin/reservations')
-    }).catch(err => {
-        console.log('Deu erro:', err)
-        res.send(err);
+    }).catch(err=>{
+        console.log('Continuando')
     })
 })
 
-router.delete('/reservations:id', function (req, res, next) {
+router.delete('/reservations:id', async function (req, res, next) {
 
-    /*
-        reservations.delete(req.params.id).then(result => {
-            res.send(result)
-        }).catch(err => {
-            res.send(err)
-        })
-    
-        */
+    console.log('REQ.PARAMS', req.params.id[1]);
+    const deleted = await reservations.delete(req.params.id[1]);
+
+    res.end()
+
+
+
 })
 
 
@@ -187,9 +153,88 @@ router.delete('/reservations:id', function (req, res, next) {
 End reservations routes
 */
 
+
+/*
+Users routes
+*/
 router.get('/users', function (req, res, next) {
 
-    res.render('admin/users', admin.getParams(req))
+    users.getUsers().then(data=>{
+        res.render('admin/users', admin.getParams(req, {data}));
+    })
+    
 });
+
+router.post('/users', async function (req, res, next) {
+
+    await users.save(req.fields).then(result=>{
+        res.end()
+    }).catch(err=>{
+        console.log('Erro=>', err);
+        console.log('Prosseguindo')
+    })
+    
+});
+
+router.delete('/users:id', function (req, res, next) {
+
+    console.log('Req params id1:', req.params.id[1])
+        
+    users.delete(req.params.id[1]).then(response => {
+        res.redirect('/admin/users')
+    }).catch(err=>{
+        console.log('Ocorreu um erro:', err)
+    })
+})
+/*
+Users routes
+*/
+
+
+/*
+Menus routes
+*/
+router.get('/menus', function (req, res, next) {
+
+    menus.getMenus().then(data => {
+        res.render('admin/menus', admin.getParams(req, {
+            data
+        }))
+    })
+
+})
+
+router.post('/menus', async function (req, res, next) {
+    console.log('Chegou na rota /menus como post');
+
+    try {
+        const resultados = await menus.save(req.fields, req.files);
+
+        console.log('Resultados ocorreram');
+        console.log('Resultados:', resultados);
+
+        res.send(resultados)
+    } catch (error) {
+        console.error('Ocorreu um erro:', error);
+        res.status(500).send({ 'error': 'Ocorreu um erro no servidor' });
+    }
+    console.log('fodassse')
+});
+
+
+
+
+router.delete('/menus:id', function (req, res, next) {
+
+
+    menus.delete(req.params.id).then(result => {
+        res.redirect('/admin/menus')
+    })
+})
+/*
+Menus routes
+*/
+
+
 
 module.exports = router
