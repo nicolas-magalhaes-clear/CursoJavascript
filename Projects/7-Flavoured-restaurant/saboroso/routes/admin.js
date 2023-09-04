@@ -4,6 +4,7 @@ const users = require('./../inc/users');
 const admin = require('./../inc/admin');
 const menus = require('./../inc/menus');
 const reservations = require('../inc/reservations');
+const contacts = require('../inc/contacts');
 var sessionData;
 
 
@@ -88,11 +89,31 @@ router.get('/login', function (req, res, next) {
     users.render(req, res, null)
 });
 
+
+
+/*
+Contacts routes
+*/
 router.get('/contacts', function (req, res, next) {
 
-    res.render('admin/contacts', admin.getParams(req))
+    contacts.getContacts().then(data=>{
+        res.render('admin/contacts', admin.getParams(req, {data}))
+    })
+    
 });
 
+router.delete('/contacts:id', function(req, res, next){
+
+    console.log('Chegou na rota delete de contacts')
+    contacts.delete(req.params.id[1]).then(()=>{
+        res.redirect('/admin/contacts');
+    }).catch(err=>{
+        console.log('Prosseguindo');
+    })
+})
+/*
+Contacts routes
+*/
 
 
 
@@ -179,7 +200,7 @@ router.post('/users', async function (req, res, next) {
 router.delete('/users:id', function (req, res, next) {
 
     console.log('Req params id1:', req.params.id[1])
-        
+
     users.delete(req.params.id[1]).then(response => {
         res.redirect('/admin/users')
     }).catch(err=>{
