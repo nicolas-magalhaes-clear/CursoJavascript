@@ -5,6 +5,7 @@ const admin = require('./../inc/admin');
 const menus = require('./../inc/menus');
 const reservations = require('../inc/reservations');
 const contacts = require('../inc/contacts');
+const emails = require('./../inc/emails')
 var sessionData;
 
 
@@ -124,8 +125,14 @@ Emails
 */
 router.get('/emails', function (req, res, next) {
 
-    res.render('admin/emails', admin.getParams(req))
+    emails.getEmails().then(data=>{
+        res.render('admin/emails', admin.getParams(req, {data}))
+    })
+
+    
 });
+
+
 /*
 Emails
 */
