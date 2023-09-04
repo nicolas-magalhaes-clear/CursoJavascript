@@ -69,13 +69,27 @@ module.exports = {
         //verifies if fields.id is bigger than 0, this specifies if we are creating or updating a query
         if (parseInt(fields.id) >= 0) {
             //UPDATE
-            query = 'UPDATE tb_users SET name = ?, email = ? WHERE id = ?'
 
-            params = [
-                fields.name,
-                fields.email,
-                fields.id
-            ]
+            if(fields.password){
+                query = 'UPDATE tb_users SET name = ?, email = ?, password = ? WHERE id = ?'    
+                params = [
+                    fields.name,
+                    fields.email,
+                    fields.password,
+                    fields.id
+                ]
+            }
+            else{
+                query = 'UPDATE tb_users SET name = ?, email = ? WHERE id = ?'
+                params = [
+                    fields.name,
+                    fields.email,
+                    fields.id
+                ]
+            }
+            
+
+            
 
         }
         else {
