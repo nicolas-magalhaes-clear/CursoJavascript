@@ -61,27 +61,51 @@ module.exports = {
     testConsole() {
         console.log('Testing')
     },
-    getReservations(page) {
+    getReservations(req) {
+        console.log('Chegou em getReservations')
+        return new Promise((resolve, reject) => {
+            console.log('Req query value:', req.query);
+            let page = req.query.page
+            let dtstart = req.query.start;
+            let dtend = req.query.end;
+            console.log('Req quety')
 
-        if(!page) page = 1;
+            if (!page) page = 1;
 
-        let pag = new Pagination(
-            `SELECT SQL_CALC_FOUND_ROWS * FROM tb_reservations ORDER BY name LIMIT ?, ?`
-        )
-        return pag.getPage(page);
+            let params = []
+
+            if (dtstart && dtend) params.push(dtstart, dtend)
+
+            let pag = new Pagination(
+                `SELECT SQL_CALC_FOUND_ROWS * FROM tb_reservations 
+            ${(dtstart && dtend) ? 'WHERE date between ? and ?' : ''}
+            ORDER BY name LIMIT ?, ?`,
+                params
+            )
+            console.log('Chegou aqui no getReservations valor de params', params)
+            pag.getPage(page).then(data => {
+                console.log('Valor de data recebido de volta em getpages:', data)
+                resolve({
+                    data,
+                    links: pag.getNavigation(req.query)
+                });
+            })
+        });
     },
-    delete(id){
-        return new Promise((resolve, reject)=>{
-          
-          conn.query('DELETE FROM tb_reservations WHERE id = ?', [id], (err, result)=>{
-            if(err){
-              reject(err);
-            }             
-            else{
-              resolve(result)
-            }                                                                                               
-          })
-    
+
+
+    delete(id) {
+        return new Promise((resolve, reject) => {
+
+            conn.query('DELETE FROM tb_reservations WHERE id = ?', [id], (err, result) => {
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    resolve(result)
+                }
+            })
+
         })
-      }
+    }
 }

@@ -32,7 +32,7 @@ router.get('/contacts', function (req, res) {
 })
 
 router.post('/contacts', function(req, res){
-
+  req.body = req.fields
   if(!req.body.name){
     contacts.render(req, res, 'Digite o nome')
   }

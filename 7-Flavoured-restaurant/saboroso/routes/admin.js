@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const moment = require('moment')
 const users = require('./../inc/users');
 const admin = require('./../inc/admin');
 const menus = require('./../inc/menus');
@@ -97,18 +98,18 @@ Contacts routes
 */
 router.get('/contacts', function (req, res, next) {
 
-    contacts.getContacts().then(data=>{
-        res.render('admin/contacts', admin.getParams(req, {data}))
+    contacts.getContacts().then(data => {
+        res.render('admin/contacts', admin.getParams(req, { data }))
     })
-    
+
 });
 
-router.delete('/contacts:id', function(req, res, next){
+router.delete('/contacts:id', function (req, res, next) {
 
     console.log('Chegou na rota delete de contacts')
-    contacts.delete(req.params.id[1]).then(()=>{
+    contacts.delete(req.params.id[1]).then(() => {
         res.redirect('/admin/contacts');
-    }).catch(err=>{
+    }).catch(err => {
         console.log('Prosseguindo');
     })
 })
@@ -125,11 +126,11 @@ Emails
 */
 router.get('/emails', function (req, res, next) {
 
-    emails.getEmails().then(data=>{
-        res.render('admin/emails', admin.getParams(req, {data}))
+    emails.getEmails().then(data => {
+        res.render('admin/emails', admin.getParams(req, { data }))
     })
 
-    
+
 });
 
 
@@ -142,12 +143,27 @@ Emails
  Reservations routes
  */
 router.get('/reservations', function (req, res, next) {
+    console.log('Chegou no get reservations')
+    let start = (req.query.start) ? req.query.start : moment().subtract(1, 'year').format('YYYY-MM-DD');
+    let end = (req.query.end) ? req.query.end : moment().subtract(1, 'year').format('YYYY-MM-DD');
+    
+    console.log('Valor de req.query');
+    console.log(req.query);
 
-    reservations.getReservations().then(data => {
+    console.log('Start e end na rota');
+    console.log(start);
+    console.log(end);
 
+    reservations.getReservations(req).then(pag => {
+        console.log('Get reservations finalizado')
         res.render('admin/reservations', admin.getParams(req, {
-            date: {},
-            data
+            date: {
+                start,
+                end
+            },
+            data: pag.data,
+            moment,
+            links: pag.links
         }))
     })
 
@@ -160,7 +176,7 @@ router.post('/reservations', function (req, res, next) {
 
         console.log('Resultados:', results)
         res.redirect('/admin/reservations')
-    }).catch(err=>{
+    }).catch(err => {
         console.log('Continuando')
     })
 })
@@ -187,21 +203,21 @@ Users routes
 */
 router.get('/users', function (req, res, next) {
 
-    users.getUsers().then(data=>{
-        res.render('admin/users', admin.getParams(req, {data}));
+    users.getUsers().then(data => {
+        res.render('admin/users', admin.getParams(req, { data }));
     })
-    
+
 });
 
 router.post('/users', async function (req, res, next) {
 
-    await users.save(req.fields).then(result=>{
+    await users.save(req.fields).then(result => {
         res.end()
-    }).catch(err=>{
+    }).catch(err => {
         console.log('Erro=>', err);
         console.log('Prosseguindo')
     })
-    
+
 });
 
 router.delete('/users:id', function (req, res, next) {
@@ -210,7 +226,7 @@ router.delete('/users:id', function (req, res, next) {
 
     users.delete(req.params.id[1]).then(response => {
         res.redirect('/admin/users')
-    }).catch(err=>{
+    }).catch(err => {
         console.log('Ocorreu um erro:', err)
     })
 })

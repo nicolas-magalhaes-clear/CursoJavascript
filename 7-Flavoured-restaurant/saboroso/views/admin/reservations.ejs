@@ -65,7 +65,7 @@
             </thead>
             <tbody>
               <% data.forEach(row=>{%>
-                <% console.log('row',row); %>
+                
                   <tr data-row="<%= JSON.stringify(row) %>">
                     <td>
                       <%= row.id %>
@@ -96,11 +96,11 @@
         <!-- /.box-body -->
         <div class="box-footer clearfix">
           <ul class="pagination pagination-sm no-margin pull-right">
-            <li class="active"><a href="#">«</a></li>
-            <li><a href="#">1</a></li>
-            <li><a href="#">2</a></li>
-            <li><a href="#">3</a></li>
-            <li><a href="#">»</a></li>
+            <% links.forEach(link=>{
+              console.log('Links de href:', link.href)%>
+              <li <% if(link.active){ %> class='active' <%} %>><a href="<%= link.href %>"><%=link.text %></a></li>
+              
+              <% }) %>
           </ul>
         </div>
         <!-- /.box-footer -->
@@ -221,11 +221,11 @@
 
       let formUpdate = document.querySelector('#modal-update form');
 
-      formCreate.save().then(json=>{
+      formCreate.save().then(json => {
         window.location.reload();
       })
 
-      formUpdate.save().then(json=>{
+      formUpdate.save().then(json => {
         window.location.reload();
       })
 
@@ -255,7 +255,7 @@
                 console.log('dataday split');
                 console.log(dataday)
 
-                let dataformatted = `${dataday[0]}-${dataday[1]}-${dataday[2].substr(0,2)}`;
+                let dataformatted = `${dataday[0]}-${dataday[1]}-${dataday[2].substr(0, 2)}`;
                 console.log('dataformated')
                 console.log(dataformatted)
                 document.querySelector('#inputDateUpdate').value = dataformatted
@@ -270,10 +270,10 @@
           $('#modal-update').modal('show')
         })
       })
-    
-      document.querySelectorAll('.btn-delete').forEach(btn=>{
 
-        btn.addEventListener('click', e=>{
+      document.querySelectorAll('.btn-delete').forEach(btn => {
+
+        btn.addEventListener('click', e => {
 
           let tr = e.composedPath().find(el => {
             return (el.tagName.toUpperCase() === 'TR')
@@ -282,7 +282,7 @@
           let data = JSON.parse(tr.dataset.row)
           fetch(`/admin/users:${data.id}`, {
             method: 'DELETE',
-          }).then(()=>{
+          }).then(() => {
             window.location.reload()
           })
 
