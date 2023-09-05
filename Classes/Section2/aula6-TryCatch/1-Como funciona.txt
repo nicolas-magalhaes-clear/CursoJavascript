@@ -1,3 +1,0 @@
-O try catch é um mecanismo para prevenir que um determinado erro aconteça
-Podemos utilizar ele em casos mais sensiveis do código para prevenir o código
-

@@ -1,6 +1,0 @@
-/*
-
-A synchronous process make your process 
-
-
-*/
