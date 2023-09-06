@@ -1,5 +1,6 @@
 const Colors = require('./ConsoleColors')
 const Pagination = require('./Pagination');
+const moment = require('moment')
 var conn = require('./db')
 
 let prefix;
@@ -60,9 +61,9 @@ module.exports = {
         })
     },
     getReservations(req) {
-        
+
         return new Promise((resolve, reject) => {
-            prefix = Colors.cyan('[RESERVATIONS.JS]')+Colors.yellow('[getReservations]')
+            prefix = Colors.cyan('[RESERVATIONS.JS]') + Colors.yellow('[getReservations]')
             console.log(prefix, 'Method accessed')
             console.log(prefix, 'Starting promise')
             console.log(prefix, 'Values in req.query', Colors.white(req.query));
@@ -89,7 +90,7 @@ module.exports = {
             console.log(prefix, 'page value:', page)
             pag.getPage(page).then(data => {
                 console.log(prefix, 'Result obtained from method getPage:', data)
-                console.log(prefix, 'Resolving promise')                
+                console.log(prefix, 'Resolving promise')
                 resolve({
                     data,
                     links: pag.getNavigation(req.query)
@@ -108,6 +109,51 @@ module.exports = {
                 }
                 else {
                     resolve(result)
+                }
+            })
+
+        })
+    },
+    chart(req) {
+        return new Promise((resolve, reject) => {
+
+            conn.query(`
+            SELECT
+    CONCAT(YEAR(date), '-', MONTH(date)) AS date,
+    COUNT(*) AS total,
+    SUM(people) / COUNT(*) AS avg_people
+FROM
+    tb_reservations
+WHERE
+    date BETWEEN ? AND ?
+GROUP BY YEAR(date), MONTH(date), CONCAT(YEAR(date), '-', MONTH(date))
+ORDER BY YEAR(date) DESC, MONTH(date) DESC;
+
+            `, [
+                req.query.start,
+                req.query.end
+            ], (err, result) => {
+                if (err) {
+                    reject(err)
+                }
+                else {
+
+                    let months = [];
+                    let values = [];
+
+                    result.forEach(row => {
+                        months.push(moment(row.date).format('MMM YYYY'));
+                        values.push(row.total)
+                    })
+                    console.log('Resolving:', months, values)
+                    resolve({
+                        months,
+                        values
+                    })
+
+
+
+
                 }
             })
 
