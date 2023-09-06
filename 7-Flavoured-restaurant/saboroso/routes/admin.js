@@ -10,23 +10,38 @@ const emails = require('./../inc/emails')
 const Colors = require('./../inc/ConsoleColors')
 var sessionData;
 
+moment.locale('pt-BR')
+
 let prefix;
 router.use(function (req, res, next) {
     prefix = Colors.red('[MIDDLEWARE-ADMIN-1]')
     console.log(prefix, 'Validating login data')
-    if (['/login'].indexOf(req.url) === -1 && sessionData == undefined) {
+    try{
+        console.log(prefix, 'req.session:', req.session)
+    if (['/login'].indexOf(req.url) === -1 && !req.session.user) {
         console.log(prefix, 'Session data not defined, redirecting to /admin/login');
         res.redirect('/admin/login');
-        return
-    }
-    else if (sessionData !== undefined) {
+    } else {
         console.log(prefix, 'Session data FOUND! proceding to the next middleware')
         next()
     }
-    else {
-        console.log(prefix, 'Redirecting to proceding to the next middleware')
-        next()
-    }
+}
+catch(error){
+    console.log(prefix, error)
+}
+    // if (['/login'].indexOf(req.url) === -1 && sessionData == undefined) {
+    //     console.log(prefix, 'Session data not defined, redirecting to /admin/login');
+    //     res.redirect('/admin/login');
+    //     return
+    // }
+    // else if (sessionData !== undefined) {
+    //     console.log(prefix, 'Session data FOUND! proceding to the next middleware')
+    //     next()
+    // }
+    // else {
+    //     console.log(prefix, 'Redirecting to proceding to the next middleware')
+    //     next()
+    // }
 
 })
 
@@ -86,6 +101,7 @@ router.post('/login', function (req, res, next) {
             res.redirect('/admin')
 
         }).catch(err => {
+            
             console.log(prefix, 'Login failed')
             users.render(req, res, err.message)
         })
@@ -187,14 +203,14 @@ router.post('/reservations', function (req, res, next) {
 
     console.log(prefix, 'Requesting method save in reservations')
     reservations.save(req.fields).then(results => {
+        console.log(prefix, 'Results obtained from save method', results)
+        res.send(results)
 
-        console.log(prefix, 'Request complete, results obtained:', results)
-        
-        res.redirect('/admin/reservations')
     }).catch(err => {
-        console.log(prefix, 'Error ocurred \n', Colors.red('[Error]\n'), Colors.yellow('######################\n'), err, Colors.yellow('\n######################'));
-        console.log(prefix, 'Reloading page')
-    })
+        console.log(prefix, 'Erro aconteceu')
+        res.send(err)
+
+    });
 })
 
 router.delete('/reservations:id', async function (req, res, next) {
@@ -206,6 +222,21 @@ router.delete('/reservations:id', async function (req, res, next) {
     res.end()
 
 
+
+})
+
+router.get('/reservations/chart', (req,res,next)=>{
+    prefix = Colors.blue('[ROUTE]')+Colors.magenta('[RESERVATIONS/₢HART]')+Colors.green('[GET]')
+
+    console.log(prefix, 'Route accessed')
+    req.query.start = (req.query.start) ? req.query.start : moment().subtract(1, 'year').format('YYYY-MM-DD');
+    req.query.end = (req.query.end) ? req.query.end : moment().subtract(1, 'year').format('YYYY-MM-DD');
+
+
+    reservations.chart(req).then(chartData => {
+        console.log(prefix, chartData)
+        res.send(chartData);
+    })
 
 })
 
@@ -233,7 +264,7 @@ router.post('/users', async function (req, res, next) {
     console.log(prefix, 'Route accessed')
     console.log(prefix, 'Requesting method save in users with fields:', req.fields);
     await users.save(req.fields).then(result => {
-        res.end()
+        res.send(result)
     }).catch(err => {        
         console.log(prefix, 'Error ocurred\n', Colors.red('[Error]\n'), Colors.yellow('######################\n'), err, Colors.yellow('\n######################'));
         console.log(prefix, 'Reloading page')
@@ -276,18 +307,15 @@ router.post('/menus', async function (req, res, next) {
     prefix = Colors.blue('[ROUTE]')+Colors.magenta('[MENUS]')+Colors.yellow('[POST]')
 
     console.log(prefix, 'Requesting method save in menus with req.fields:', req.fields, 'and req.files:', req.files)
-    try {
-        const results= await menus.save(req.fields, req.files);
-
-        console.log(prefix, 'Results obtained from method save', results)
-        
-
+    menus.save(req.fields, req.files).then(results => {
+        console.log(prefix, 'Results obtained from save method', results)
         res.send(results)
-    } catch (error) {
-        console.log(prefix, 'Error ocurred\n', Colors.red('[Error]\n'), Colors.yellow('######################\n'), err, Colors.yellow('\n######################'));
-        console.log(prefix, 'Reloading page')
-    }
-    console.log('fodassse')
+
+    }).catch(err => {
+        console.log(prefix, 'Erro aconteceu')
+        res.send(err)
+
+    });
 });
 
 
