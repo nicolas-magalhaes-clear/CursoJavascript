@@ -14,11 +14,20 @@ const adminteste = require('./routes/admintest')
 
 var app = express();
 
+app.use(session({
+  store: new redisStore(),
+  host: 'localhost',
+  port: 6379,
+  secret: 'senhafacil123@',
+  resave: true,
+  saveUninitialized: true
+}))
+
 
 app.use((req, res, next)=> {
-
+  
   if (req.method.toLocaleLowerCase() === 'post'){
-
+    console.log('PARSING VAI SER FEITO')
     var form = new formidable.IncomingForm({
       uploadDir: path.join(__dirname, "/public/images"),
       keepExtensions: true
@@ -42,10 +51,11 @@ app.use((req, res, next)=> {
       console.log('Enviado', req.body, req.fields);
       next()
     })
-    next()
+    
   } else {
     next()
   }
+  
 })
 
 // app.use(async (req, res, next) => {
@@ -100,14 +110,6 @@ app.use((req, res, next)=> {
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-app.use(session({
-  store: new redisStore(),
-  host: 'localhost',
-  port: 6379,
-  secret: 'senhafacil123@',
-  resave: true,
-  saveUninitialized: true
-}))
 
 app.use(logger('dev'));
 app.use(express.json());
