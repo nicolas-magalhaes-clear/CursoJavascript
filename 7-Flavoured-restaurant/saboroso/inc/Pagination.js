@@ -1,5 +1,5 @@
 
-
+const Colors = require('./ConsoleColors')
 const conn = require('./db');
 
 class Pagination{
@@ -9,22 +9,28 @@ class Pagination{
         this.query = query;
         this.params = params;
         this.itemsPerPage = itemsPerPage;
-
+        
     }
 
     getPage(page){
-        console.log('Page recebido no getpage:', page)
+        let prefix = Colors.cyan('[PAGINATION.JS]')+Colors.yellow('[getPage]')
+
+        console.log(prefix, 'Method accessed')
+        console.log(prefix, 'Page received in getPage method:', page)
+
         this.currentPage = page - 1;
 
         this.params.push(
             this.currentPage * this.itemsPerPage,
             this.itemsPerPage
         )
-        console.log('Page atual getpage:', this.currentPage)
+
+        console.log(prefix, 'currentPage value in getPage:', this.currentPage)
+        console.log(prefix, 'Params values:', this.params)
         console.log('valor de params in getpage', this.params)
         return new Promise((resolve, reject) => {
-            console.log('Query a ser enviada:', [this.query, "SELECT FOUND_ROWS() AS FOUND_ROWS"].join(';'))
-            console.log('Parametros a serem substituidos:', this.params)
+            console.log(prefix,'Query to be sent:', Colors.green([this.query, "SELECT FOUND_ROWS() AS FOUND_ROWS"].join(';')))
+            console.log(prefix, 'Parameters to be replace:', this.params)
             conn.query([this.query, "SELECT FOUND_ROWS() AS FOUND_ROWS"].join(';'), this.params, (err, result) => {
                 if (err) {
                     reject(err);
@@ -54,7 +60,10 @@ class Pagination{
         return this.totalPages;
     }
     getNavigation(params){
-        console.log('PARAMETROS GETNAVIGATION::::', params)
+        let prefix = Colors.cyan('[PAGINATION.JS]')+Colors.yellow('[getNavigation]')
+
+        console.log(prefix, 'Params values:', params)
+
         let  limitPagesNav = 5;
 
         let links =  []
@@ -100,20 +109,22 @@ class Pagination{
                 href: `?${this.getQueryString(Object.assign({}, params,{page: this.getCurrentPage()+1}))}`,
             })
         }
-        console.log('Links retornadaos', links)
+        console.log(prefix, 'Returning links')
         return links
 
     }
 
     getQueryString(params){
-
+        let prefix = Colors.cyan('[PAGINATION.JS]')+Colors.yellow('[getQueryString]');
+        
+        console.log(prefix, 'Method accessed')
         let queryString = [];
-        console.log('Params recebidos na getquerystring:', params)
+        console.log(prefix, 'Params receiveds in getquerystring:', params)
         for(let name in params){
-            console.log('Name:', name)
             queryString.push(`${name}=${params[name]}`)
         }
-        console.log('QUERYSTRING A SER ENVIADA:', queryString)
+        console.log(prefix, 'Querystring to be sent', queryString)
+        console.log(prefix, 'Method return')
         return queryString.join('&')
     }
 

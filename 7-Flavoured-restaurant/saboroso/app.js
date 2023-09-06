@@ -15,52 +15,85 @@ const adminteste = require('./routes/admintest')
 var app = express();
 
 
-app.use(async (req, res, next) => {
-  if (req.method.toLowerCase() === 'post') {
-    
+app.use((req, res, next)=> {
 
-    const form = new formidable.IncomingForm({
+  if (req.method.toLocaleLowerCase() === 'post'){
+
+    var form = new formidable.IncomingForm({
       uploadDir: path.join(__dirname, "/public/images"),
-      keepExtensions: true,
-      allowEmptyFiles: true,
-      minFileSize: 0
+      keepExtensions: true
     });
+    form.parse(req,  (err, fields, files)=> {
+      for (const key in fields) {
 
-    await new Promise((resolve, reject) => {
-      form.parse(req, (err, fields, files) => {
-        if (err) {
-          
-          reject(err);
-          return;
-        }
+        fields[key] = fields[key][0]
 
-        for (const key in fields) {
-          fields[key] = fields[key][0];
-        }
-        if (files.photo) {
-          files = files.photo[0];
-        }
+      }
+      if(files.photo){
 
-        req.fields = fields;
-        req.files = files;
-        console.log('req.fields1:', req.fields);
+        files = files.photo[0]
 
-        console.log('Ok mano');
-
-        console.log('URL Requisitada no middleware inicial:', req.url)
-        
-        resolve();
-        
-        next()
-      });
-    });
-    
+      }
+      
+      req.body = fields
+      req.fields = fields
+      req.files = files
+      console.log('Parsing feito')
+      console.log('Enviado', req.body, req.fields);
+      next()
+    })
     next()
   } else {
-    next();
+    next()
   }
+})
+
+// app.use(async (req, res, next) => {
+//   if (req.method.toLowerCase() === 'post') {
+    
+
+//     const form = new formidable.IncomingForm({
+//       uploadDir: path.join(__dirname, "/public/images"),
+//       keepExtensions: true,
+//       allowEmptyFiles: true,
+//       minFileSize: 0
+//     });
+
+//     await new Promise((resolve, reject) => {
+//       form.parse(req, (err, fields, files) => {
+//         if (err) {
+          
+//           reject(err);
+//           return;
+//         }
+
+//         for (const key in fields) {
+//           fields[key] = fields[key][0];
+//         }
+//         if (files.photo) {
+//           files = files.photo[0];
+//         }
+
+//         req.fields = fields;
+//         req.files = files;
+//         console.log('req.fields1:', req.fields);
+
+//         console.log('Ok mano');
+
+//         console.log('URL Requisitada no middleware inicial:', req.url)
+        
+//         resolve();
+        
+//         next()
+//       });
+//     });
+    
+//     next()
+//   } else {
+//     next();
+//   }
   
-});
+// });
 
 
 // view engine setup
@@ -84,7 +117,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/admin', adminRouter);
-app.use('/admintest', adminteste)
+
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
