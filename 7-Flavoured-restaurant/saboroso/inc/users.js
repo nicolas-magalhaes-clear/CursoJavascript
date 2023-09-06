@@ -58,11 +58,11 @@ module.exports = {
     },
     async save(fields) {
 
-        console.log('CHeGOU EM SAVETEST')
+        
         console.log(fields)
         let query, params;
 
-        console.log('fields:', fields)
+        
 
 
 
@@ -105,15 +105,18 @@ module.exports = {
             ]
         }
 
-        console.log('AQUIIIIIIIIIIIIIIIIIIIIIIIIIIIII')
-        let aux;
-        await connpromise.query(query, params).then((result) => {
-            console.log('Corrigido')
-            console.log('result', result);
-            aux = result
+        
+        return new Promise((resolve, reject)=>{
+            conn.query(query, params, (err, result)=>{
+                if(err){
+                    reject(err)
+                }
+                else{
+                    resolve(result)
+                }
+            })
         })
-        console.log('RESULTE:', aux);
-        return aux
+        
     },
     delete(id){
         return new Promise((resolve, reject)=>{
